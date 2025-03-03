@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 
 export interface HISTORY {
-  id: number;
+  id: string;
   formData: string;
-  aiResponse: string;
+  aiResponse: string | null;
   templateSlug: string;
   createdBy: string;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 function History() {
