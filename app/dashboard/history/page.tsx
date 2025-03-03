@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 
 export interface HISTORY {
-  id: string;
+  id: number;
   formData: string;
-  aiResponse: string | null;
+  aiResponse: string;
   templateSlug: string;
   createdBy: string;
-  createdAt: string | null;
+  createdAt: string;
 }
 
 function History() {
@@ -54,7 +54,7 @@ function History() {
   if (loading) {
     return (
       <div className="p-2 m-2 text-2xl bg-transparent font-bold">
-        Loading...
+        Loading....
       </div>
     );
   }
