@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 
 export interface HISTORY {
-  id: string;
+  id: number;
   formData: string;
   aiResponse: string;
   templateSlug: string;
