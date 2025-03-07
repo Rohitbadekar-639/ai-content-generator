@@ -9,28 +9,34 @@ import { UserSubscription } from "@/utils/schema";
 import moment from "moment";
 import Script from "next/script";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
+import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
 
-function billing() {
+function Billing() {
   const [loading, setloading] = useState(false);
   const { user } = useUser();
   const { userSubscription, setUserSubscription } = useContext(
     UserSubscriptionContext
   );
+  const { totalUsage } = useContext(TotalUsageContext);
 
+  // Define maximum words based on subscription
+  const maxWords = userSubscription ? 100000 : 10000;
+
+  // Handle subscription creation
   const CreateSubscription = () => {
     setloading(true);
     axios.post("/api/create-subscription", {}).then(
       (res) => {
-        console.log(res.data);
         OnPayment(res.data.id);
       },
       (error) => {
         setloading(false);
-        console.log(error);
+        console.error("Error creating subscription:", error);
       }
     );
   };
 
+  // Handle payment processing with Razorpay
   const OnPayment = (subId: string) => {
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -39,8 +45,8 @@ function billing() {
       description: "Monthly Subscription",
       handler: async (resp: any) => {
         console.log(resp);
-        if (resp) {
-          SaveSubscription(resp?.razorpay_payment_id);
+        if (resp?.razorpay_payment_id) {
+          await SaveSubscription(resp.razorpay_payment_id);
         }
         setloading(false);
       },
@@ -50,6 +56,7 @@ function billing() {
     rzp.open();
   };
 
+  // Save subscription to database
   const SaveSubscription = async (paymentId: string) => {
     const result = await db.insert(UserSubscription).values({
       email: user?.primaryEmailAddress?.emailAddress,
@@ -58,11 +65,20 @@ function billing() {
       paymentId: paymentId,
       joinDate: moment().format("DD/MM/yyyy"),
     });
-    console.log(result);
     if (result) {
-      window.location.reload();
+      window.location.reload(); // Refresh to update subscription status
     }
   };
+
+  // Determine usage message
+  let usageMessage = "";
+  if (!userSubscription && totalUsage >= 10000) {
+    usageMessage =
+      "You have exceeded your free plan limit of 10,000 words. Please upgrade to the monthly plan to continue generating content.";
+  } else if (userSubscription && totalUsage >= 100000) {
+    usageMessage =
+      "You have exceeded your monthly limit of 100,000 words. Please wait until your next billing cycle or contact support for additional options.";
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -74,6 +90,20 @@ function billing() {
         Upgrade With Monthly Plan
       </h2>
 
+      {/* Display current usage */}
+      <div className="text-center text-gray-600 mb-4">
+        Current Usage: {totalUsage.toLocaleString()} /{" "}
+        {maxWords.toLocaleString()} words
+      </div>
+
+      {/* Display warning message if limit exceeded */}
+      {usageMessage && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-4 rounded-md mb-6">
+          <p>{usageMessage}</p>
+        </div>
+      )}
+
+      {/* Plan Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Free Plan Card */}
         <div className="bg-white shadow-md p-6 rounded-lg text-center border">
@@ -105,11 +135,11 @@ function billing() {
             <li>✅ 1 Year of History</li>
           </ul>
           <Button
-            disabled={loading}
-            onClick={() => CreateSubscription()}
+            disabled={loading || userSubscription}
+            onClick={CreateSubscription}
             className="mt-6 w-full font-bold"
           >
-            {loading && <Loader2Icon className="animate-spin" />}
+            {loading && <Loader2Icon className="animate-spin mr-2" />}
             {userSubscription ? "Active Plan" : "Get Started"}
           </Button>
         </div>
@@ -118,4 +148,4 @@ function billing() {
   );
 }
 
-export default billing;
+export default Billing;

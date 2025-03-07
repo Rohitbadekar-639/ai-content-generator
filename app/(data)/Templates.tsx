@@ -1,15 +1,15 @@
 export default [
   {
     name: "Blog Title",
-    desc: "An AI tool that generate blog title depends on yout blog information",
+    desc: "An AI tool that generates blog title depending on your blog information",
     category: "Blog",
     icon: "https://cdn-icons-png.flaticon.com/128/4186/4186534.png",
     aiPrompt:
-      "Give me 5 blog topic idea in bullet wise only based on give niche & outline and give me result in Rich text editor format",
+      "Give me 5 SEO friendly, unique, clickbait, blog topic ideas in bullet points based on given niche & outline",
     slug: "generate-blog-title",
     form: [
       {
-        label: "Enter your blog niche",
+        label: "Enter blog niche",
         field: "input",
         name: "niche",
         required: true,
@@ -27,17 +27,16 @@ export default [
     category: "blog",
     icon: "https://cdn-icons-png.flaticon.com/128/4905/4905454.png",
     slug: "blog-content-generation",
-    aiPrompt:
-      "Generate Blog Content based on topic and outline in rich text editor format",
+    aiPrompt: "Generate a Blog Content based on topic and outline",
     form: [
       {
-        label: "Enter your blog topic",
+        label: "Enter blog topic",
         field: "input",
         name: "topic",
         required: true,
       },
       {
-        label: "Enter blog Outline here",
+        label: "Enter blog Outline",
         field: "textarea",
         name: "outline",
       },
@@ -67,7 +66,7 @@ export default [
     icon: "https://cdn-icons-png.flaticon.com/128/402/402075.png",
     slug: "youtube-seo-title",
     aiPrompt:
-      "Give me Best SEO optimized high ranked 5 title ideas bullet wise only bases on keywords and outline and give me result in HTML tags format",
+      "Give me best, SEO optimized, high ranking, 5 title ideas, in bullet points only based on keywords & outline and give me result in HTML tags format",
     form: [
       {
         label: "Enter your youtube video topic keyowords",

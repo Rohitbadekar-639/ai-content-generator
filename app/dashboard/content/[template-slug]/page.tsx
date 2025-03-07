@@ -15,6 +15,7 @@ import moment from "moment";
 import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
 import { useRouter } from "next/navigation"; // Corrected import
 import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
+import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
 
 interface PROPS {
   params: Promise<{ "template-slug": string }>; // params is now a Promise
@@ -34,10 +35,16 @@ function CreateNewContent(props: PROPS) {
   const { updateCreditUsage, setUpdateCreditUsage } = useContext(
     UpdateCreditUsageContext
   );
+  const { userSubscription } = useContext(UserSubscriptionContext);
+
+  // Set maxWords based on subscription status
+  const maxWords = userSubscription ? 100000 : 10000;
 
   const GenerateAIContent = async (formData: any) => {
-    if (totalUsage >= 100000) {
-      alert("Please Upgrade Plan");
+    if (totalUsage >= maxWords) {
+      alert(
+        `You have reached your limit of ${maxWords} words. Please upgrade your plan.`
+      );
       router.push("/dashboard/billing");
       return;
     }
