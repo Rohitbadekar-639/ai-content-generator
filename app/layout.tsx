@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { LoadingProvider } from "./(context)/LoadingContext";
+import GlobalLoaderProvider from "@/components/ui/global-loader-provider";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -20,7 +22,12 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={outfit.className}>{children}</body>
+        <body className={outfit.className}>
+          <LoadingProvider>
+            {children}
+            <GlobalLoaderProvider />
+          </LoadingProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

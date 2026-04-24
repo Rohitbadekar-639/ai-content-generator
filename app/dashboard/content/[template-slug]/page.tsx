@@ -7,7 +7,6 @@ import Templates from "@/app/(data)/Templates";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { chatSession } from "@/utils/AiModal";
 import { db } from "@/utils/db";
 import { AIOutput } from "@/utils/schema";
 import { useUser } from "@clerk/nextjs";
@@ -16,6 +15,7 @@ import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
 import { useRouter } from "next/navigation"; // Corrected import
 import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
+import { useLoading } from "@/app/(context)/LoadingContext";
 
 interface PROPS {
   params: Promise<{ "template-slug": string }>; // params is now a Promise
@@ -27,7 +27,7 @@ function CreateNewContent(props: PROPS) {
     (item) => item.slug === params["template-slug"]
   );
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLocalLoading] = useState(false);
   const [aiOutput, setAiOutput] = useState<string>("");
   const { user } = useUser();
   const router = useRouter();
@@ -36,24 +36,55 @@ function CreateNewContent(props: PROPS) {
     UpdateCreditUsageContext
   );
   const { userSubscription } = useContext(UserSubscriptionContext);
+  const { setLoading } = useLoading();
 
-  // Set maxWords based on subscription status
-  const maxWords = userSubscription ? 100000 : 10000;
+  // Set maxWords based on subscription status with consistent initial value
+  const maxWords = userSubscription ? 1000000 : 100000; // 10,00,000 paid, 1,00,000 free
 
   const GenerateAIContent = async (formData: any) => {
-    if (totalUsage >= maxWords) {
-      alert(
-        `You have reached your limit of ${maxWords} words. Please upgrade your plan.`
-      );
-      router.push("/dashboard/billing");
+    if (!selectedTemplate) {
       return;
     }
-    setLoading(true);
+
+    // Check usage limits before generation
+    const maxWords = userSubscription ? 1000000 : 100000; // Updated limits
+    if (totalUsage >= maxWords) {
+      const planName = userSubscription ? "Professional" : "Free";
+      alert(`You've reached your ${planName} plan limit of ${maxWords.toLocaleString()} words. Please upgrade to continue generating content.`);
+      return;
+    }
+
+    setLocalLoading(true);
+    setLoading(true, "Generating AI content...");
     const SelectedPrompt = selectedTemplate?.aiPrompt;
     const FinalAIPrompt = JSON.stringify(formData) + ", " + SelectedPrompt;
-    const result = await chatSession.sendMessage(FinalAIPrompt);
-    setAiOutput(result.response.text());
-    await SaveInDb(formData, selectedTemplate?.slug, result.response.text());
+    
+    try {
+      const response = await fetch('/api/groq', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          prompt: FinalAIPrompt,
+          model: 'llama-3.1-8b-instant'
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        const result = data.response;
+        setAiOutput(result);
+        await SaveInDb(formData, selectedTemplate?.slug, result);
+      } else {
+        setAiOutput(data.error || "Failed to generate content. Please try again.");
+      }
+    } catch (error) {
+      setAiOutput("Network error. Please check your connection and try again.");
+    }
+    
+    setLocalLoading(false);
     setLoading(false);
     setUpdateCreditUsage(Date.now());
   };

@@ -16,4 +16,5 @@ export const UserSubscription = pgTable("userSubscription", {
   active: boolean("active"),
   paymentId: varchar("paymentId"),
   joinDate: varchar("joinDate"),
+  plan: varchar("plan").default("Free"),
 });

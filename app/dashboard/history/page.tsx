@@ -8,14 +8,15 @@ import moment from "moment";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
+import ContentRenderer from "@/components/ui/content-renderer";
 
 export interface HISTORY {
   id: number;
   formData: string;
-  aiResponse: string;
+  aiResponse: string | null;
   templateSlug: string;
   createdBy: string;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 function History() {
@@ -31,10 +32,13 @@ function History() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+      if (!userEmail) return;
+      
       const result: HISTORY[] = await db
         .select()
         .from(AIOutput)
-        .where(eq(AIOutput.createdBy, user?.primaryEmailAddress?.emailAddress))
+        .where(eq(AIOutput.createdBy, userEmail))
         .orderBy(desc(AIOutput.createdAt));
       setHistory(result);
     } catch (error) {
@@ -47,7 +51,7 @@ function History() {
   const filteredHistory = history.filter((item) => {
     return (
       item.templateSlug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.aiResponse.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.aiResponse && item.aiResponse.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   });
 
@@ -87,17 +91,22 @@ function History() {
             <tr key={item.id} className="border-b">
               <td className="p-2">{item.templateSlug}</td>
               <td className="p-2">
-                {item.aiResponse.length > 100
-                  ? item.aiResponse.substring(0, 100) + "..."
-                  : item.aiResponse}
+                {item.aiResponse ? (
+                  item.aiResponse.length > 100
+                    ? item.aiResponse.substring(0, 100) + "..."
+                    : item.aiResponse
+                ) : (
+                  <span className="text-gray-400 italic">No content</span>
+                )}
               </td>
               <td className="p-2">
-                {moment(item.createdAt, "DD/MM/YYYY").format("DD/MM/YYYY")}
+                {item.createdAt ? moment(item.createdAt, "DD/MM/YYYY").format("DD/MM/YYYY") : "N/A"}
               </td>
-              <td className="p-2">{item.aiResponse.length}</td>
+              <td className="p-2">{item.aiResponse?.length || 0}</td>
               <td className="p-2">
                 <Button
-                  onClick={() => navigator.clipboard.writeText(item.aiResponse)}
+                  onClick={() => item.aiResponse && navigator.clipboard.writeText(item.aiResponse)}
+                  disabled={!item.aiResponse}
                 >
                   <Copy />
                   Copy
