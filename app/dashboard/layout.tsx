@@ -23,13 +23,15 @@ function layout({
         <UpdateCreditUsageContext.Provider
           value={{ updateCreditUsage, setUpdateCreditUsage }}
         >
-          <div className="bg-slate-50">
+          <div className="bg-slate-50 min-h-screen flex">
             <div className="md:w-64 hidden md:block fixed">
               <SideNav />
             </div>
-            <div className="md:ml-64">
+            <div className="md:ml-64 flex-1">
               <Header />
-              {children}
+              <main className="min-h-screen">
+                {children}
+              </main>
             </div>
           </div>
         </UpdateCreditUsageContext.Provider>

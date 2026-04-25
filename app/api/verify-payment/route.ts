@@ -3,14 +3,20 @@ import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planName } = await request.json();
-
-    console.log('Verifying payment:', { razorpay_order_id, razorpay_payment_id, planName });
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, expected_amount } = await request.json();
 
     // Validate required fields
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !expected_amount) {
       return NextResponse.json(
         { error: 'Missing payment details' },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY CHECK: Verify expected amount is FIXED ₹99 (9900 paise)
+    if (expected_amount !== 9900) {
+      return NextResponse.json(
+        { error: 'Invalid payment amount - security violation' },
         { status: 400 }
       );
     }
@@ -21,9 +27,7 @@ export async function POST(request: NextRequest) {
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 
-    console.log('Generated signature:', generated_signature);
-    console.log('Received signature:', razorpay_signature);
-
+    
     // Verify signature
     if (generated_signature !== razorpay_signature) {
       return NextResponse.json(
@@ -38,11 +42,10 @@ export async function POST(request: NextRequest) {
       message: 'Payment verified successfully',
       payment_id: razorpay_payment_id,
       order_id: razorpay_order_id,
-      planName: planName
+      planName: 'Professional'
     });
 
   } catch (error) {
-    console.error('Error verifying payment:', error);
     return NextResponse.json(
       { error: 'Payment verification failed' },
       { status: 500 }

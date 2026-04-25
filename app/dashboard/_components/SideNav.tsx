@@ -1,6 +1,5 @@
 "use client";
-import { FileClock, Home, Settings, WalletCards } from "lucide-react";
-import Image from "next/image";
+import { FileClock, Home, Settings, WalletCards, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useEffect } from "react";
 import UsageTrack from "./UsageTrack";
@@ -32,20 +31,22 @@ function SideNav() {
 
   const path = usePathname();
   useEffect(() => {
-    console.log(path);
+    // Path monitoring for active state
   }, [path]);
 
   return (
     <div className="h-screen relative border p-6 shadow-sm bg-white">
-      <div className="flex justify-center cursor-pointer">
-        <Image
-          src={"/logo.svg"}
-          alt="logo"
-          width={60}
-          height={60}
-          style={{ width: "auto", height: "auto" }}
-        />
-      </div>
+      <Link href="/dashboard" className="flex justify-center cursor-pointer">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <Sparkles className="w-7 h-7 text-white" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-lg font-bold text-gray-900">RapidContent</h2>
+            <p className="text-xs text-gray-500">AI Content Generator</p>
+          </div>
+        </div>
+      </Link>
       <hr className="my-6 border" />
       <div className="mt-8">
         {MenuList.map((menu, index) => (

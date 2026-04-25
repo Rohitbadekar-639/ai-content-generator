@@ -1,0 +1,224 @@
+"use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/nextjs";
+import { Zap, Shield, CheckCircle2 } from "lucide-react";
+
+interface SecurePaymentProps {
+  onSuccess?: () => void;
+  onError?: (error: any) => void;
+}
+
+export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useUser();
+
+  // Inline Razorpay loading function
+  const loadRazorpay = (): Promise<any> => {
+    return new Promise((resolve) => {
+      // Check if Razorpay is already loaded
+      if ((window as any).Razorpay) {
+        resolve((window as any).Razorpay);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => {
+        resolve((window as any).Razorpay);
+      };
+      script.onerror = () => {
+        resolve(null);
+      };
+      document.head.appendChild(script);
+    });
+  };
+
+  const handlePayment = async () => {
+    if (!user?.primaryEmailAddress?.emailAddress) {
+      alert("Please login to continue");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Step 1: Load Razorpay
+      let Razorpay = await loadRazorpay();
+      
+      // Fallback: Try to load Razorpay directly
+      if (!Razorpay && !(window as any).Razorpay) {
+        // Load script synchronously as fallback
+        await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.onload = resolve;
+          document.head.appendChild(script);
+        });
+        
+        Razorpay = (window as any).Razorpay;
+      }
+      
+      if (!Razorpay) {
+        throw new Error("Failed to load Razorpay. Please refresh the page and try again.");
+      }
+
+      // Step 2: Create FIXED amount order from backend
+      const response = await fetch("/api/payment-attempt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          userEmail: user.primaryEmailAddress.emailAddress,
+        }),
+      });
+
+      const orderData = await response.json();
+
+      if (!orderData.success) {
+        alert("Payment initialization failed: " + (orderData.error || "Unknown error"));
+        throw new Error(orderData.error || "Payment initialization failed");
+      }
+
+      // Step 3: Open Razorpay with FIXED amount
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      
+      if (!razorpayKey) {
+        throw new Error("Razorpay key not configured");
+      }
+
+      const options = {
+        key: razorpayKey,
+        amount: orderData.data.amount, // FIXED: ₹9900 (99 rupees)
+        currency: orderData.data.currency,
+        name: "RapidContent",
+        description: `Professional Plan - ₹${orderData.data.display_amount}/month`,
+        order_id: orderData.data.order_id,
+        prefill: {
+          name: user.fullName || user.firstName || "User",
+          email: user.primaryEmailAddress.emailAddress,
+          contact: user.phoneNumbers?.[0]?.phoneNumber || "",
+        },
+        notes: orderData.data.notes,
+        theme: {
+          color: "#3B82F6",
+        },
+        modal: {
+          ondismiss: function() {
+            setIsLoading(false);
+          },
+          escape: false,
+          handleback: false,
+          confirm_close: true,
+          animation: "slideFromBottom",
+        },
+        handler: async function(response: any) {
+          // Step 4: Verify payment on backend
+          const verifyResponse = await fetch("/api/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              expected_amount: orderData.data.amount, // Verify expected amount
+            }),
+          });
+
+          const verifyResult = await verifyResponse.json();
+
+          if (verifyResult.success) {
+            // Step 5: Activate subscription
+            await activateSubscription();
+            alert("Payment successful! You now have lifetime premium access to all templates.");
+            onSuccess?.();
+          } else {
+            alert("Payment verification failed. Please contact support.");
+            onError?.({ message: "Payment verification failed" });
+          }
+          
+          setIsLoading(false);
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      alert("Payment failed: " + (error instanceof Error ? error.message : "Unknown error"));
+      onError?.(error);
+      setIsLoading(false);
+    }
+  };
+
+  const activateSubscription = async () => {
+    try {
+      const response = await fetch("/api/activate-subscription", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan: "Professional",
+          amount: 99, // FIXED: ₹99
+          paymentId: Date.now().toString(),
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || "Failed to activate subscription");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Button
+        onClick={handlePayment}
+        disabled={isLoading}
+        className="w-full bg-white text-blue-600 hover:bg-blue-50 font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+      >
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            Processing...
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Buy Once - ₹99 Lifetime
+          </div>
+        )}
+      </Button>
+      
+      {/* Benefits Section */}
+      <div className="space-y-2 text-xs text-gray-100">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3 text-green-500" />
+          <span>One-time payment: ₹99 (lifetime)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3 text-green-500" />
+          <span>100,000 words credits included</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3 text-green-500" />
+          <span>All templates unlocked forever</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-3 h-3 text-green-500" />
+          <span>No recurring charges</span>
+        </div>
+      </div>
+    </div>
+  );
+}

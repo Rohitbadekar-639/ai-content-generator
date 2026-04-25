@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Sparkles, FileText } from "lucide-react";
+import { Copy, Check, Sparkles, FileText, Download, Share2, RefreshCw } from "lucide-react";
 import ContentRenderer from "@/components/ui/content-renderer";
 
 interface PROPS {
@@ -13,9 +13,58 @@ function OutputSection({ aiOutput }: PROPS) {
   const handleCopy = async () => {
     if (!aiOutput) return;
     
-    await navigator.clipboard.writeText(aiOutput);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(aiOutput);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const handleDownload = (format: 'txt' | 'md' | 'html') => {
+    if (!aiOutput) return;
+    
+    let content = aiOutput;
+    let mimeType = 'text/plain';
+    let extension = 'txt';
+    
+    if (format === 'md') {
+      mimeType = 'text/markdown';
+      extension = 'md';
+    } else if (format === 'html') {
+      mimeType = 'text/html';
+      extension = 'html';
+      content = `<!DOCTYPE html><html><head><title>AI Generated Content</title></head><body>${aiOutput}</body></html>`;
+    }
+    
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ai-content-${Date.now()}.${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    if (!aiOutput) return;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'AI Generated Content',
+          text: aiOutput.substring(0, 200) + '...',
+        });
+      } catch (err) {
+        // Share cancelled by user
+      }
+    } else {
+      // Fallback - copy to clipboard
+      handleCopy();
+    }
   };
 
   
@@ -33,41 +82,80 @@ function OutputSection({ aiOutput }: PROPS) {
               <p className="text-blue-100 text-sm">Powered by Groq AI</p>
             </div>
           </div>
-          <Button 
-            onClick={handleCopy}
-            disabled={!aiOutput || copied}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition-all duration-200"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-2" />
-                Copy
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleCopy}
+              disabled={!aiOutput || copied}
+              size="sm"
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition-all duration-200"
+            >
+              {copied ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </Button>
+            <Button 
+              onClick={handleShare}
+              disabled={!aiOutput}
+              size="sm"
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition-all duration-200"
+            >
+              <Share2 className="w-4 h-4" />
+            </Button>
+            <div className="relative group">
+              <Button 
+                disabled={!aiOutput}
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition-all duration-200"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                <div className="py-2">
+                  <button
+                    onClick={() => handleDownload('txt')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download as TXT
+                  </button>
+                  <button
+                    onClick={() => handleDownload('md')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download as Markdown
+                  </button>
+                  <button
+                    onClick={() => handleDownload('html')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download as HTML
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Content Area */}
-      <div className="p-6 min-h-[450px] bg-gradient-to-br from-gray-50 to-white">
+      <div className="p-4 min-h-[300px] bg-white">
         {aiOutput ? (
-          <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
-            <div className="prose prose-lg max-w-none">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="prose prose-sm max-w-none p-6">
               <ContentRenderer content={aiOutput} />
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-            <div className="p-4 bg-gray-100 rounded-full mb-4">
-              <FileText className="w-8 h-8 text-gray-400" />
+          <div className="flex flex-col items-center justify-center h-full min-h-[250px] text-center">
+            <div className="p-3 bg-gray-100 rounded-full mb-3">
+              <FileText className="w-6 h-6 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-600 mb-2">Ready to generate content</h3>
-            <p className="text-gray-400 max-w-md">
+            <h3 className="text-base font-medium text-gray-600 mb-2">Ready to generate content</h3>
+            <p className="text-gray-400 text-sm max-w-md">
               Fill in the form and click "Generate Content" to see your AI-powered results here
             </p>
           </div>
@@ -76,10 +164,29 @@ function OutputSection({ aiOutput }: PROPS) {
 
       {/* Footer */}
       {aiOutput && (
-        <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <span>Content generated successfully</span>
-            <span>{aiOutput.length} characters</span>
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Generated successfully</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span>{aiOutput.length} characters</span>
+                <span>{aiOutput.split(' ').length} words</span>
+                <span>{aiOutput.split('\n').length} lines</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                size="sm"
+                variant="outline"
+                className="text-xs"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                Regenerate
+              </Button>
+            </div>
           </div>
         </div>
       )}

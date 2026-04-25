@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
-    const { email, plan, paymentId } = await request.json();
+    const { email } = await request.json();
 
 
     if (!email) {
@@ -15,32 +15,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user already has a subscription
+    // Check if user has a subscription
     const existingSubscription = await db
       .select()
       .from(UserSubscription)
       .where(eq(UserSubscription.email, email));
 
     if (existingSubscription && existingSubscription.length > 0) {
-      // Update existing subscription
+      // Update existing subscription to free
       await db
         .update(UserSubscription)
         .set({
-          active: true,
-          plan: plan,
-          paymentId: paymentId,
+          active: false,
+          plan: "Free",
+          paymentId: null,
           joinDate: new Date().toISOString(),
         })
         .where(eq(UserSubscription.email, email));
       
     } else {
-      // Create new subscription
+      // Create free subscription
       await db.insert(UserSubscription).values({
         email: email,
-        userName: email.split('@')[0], // Extract username from email
-        active: true,
-        plan: plan,
-        paymentId: paymentId,
+        userName: email.split('@')[0],
+        active: false,
+        plan: "Free",
+        paymentId: null,
         joinDate: new Date().toISOString(),
       });
       
@@ -49,19 +49,19 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Subscription activated successfully',
-        plan: plan
+        message: 'Subscription reset to Free plan',
+        plan: "Free"
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('=== ERROR ACTIVATING SUBSCRIPTION ===');
+    console.error('=== ADMIN: RESET ERROR ===');
     console.error('Error:', error);
     
     return NextResponse.json(
       { 
-        error: 'Failed to activate subscription',
+        error: 'Failed to reset subscription',
         details: String(error)
       },
       { status: 500 }

@@ -17,6 +17,8 @@ export interface FORM {
   field: string;
   name: string;
   required?: boolean;
+  placeholder?: string;
+  options?: string[];
 }
 
 function TemplateListSection({ userSearchInput }: any) {

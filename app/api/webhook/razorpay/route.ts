@@ -39,9 +39,6 @@ export async function POST(request: Request) {
 
     // Parse the webhook event
     const event = JSON.parse(body);
-    console.log('=== RAZORPAY WEBHOOK EVENT ===');
-    console.log('Event type:', event.event);
-    console.log('Event data:', JSON.stringify(event, null, 2));
 
     // Handle payment captured event
     if (event.event === 'payment.captured') {
@@ -54,15 +51,9 @@ export async function POST(request: Request) {
       const email = payment.email;
       const notes = payment.notes || {};
       
-      console.log('=== PAYMENT CAPTURED ===');
-      console.log('Payment ID:', paymentId);
-      console.log('Amount:', amount);
-      console.log('Status:', status);
-      console.log('Email:', email);
-      console.log('Notes:', notes);
 
-      // Only process successful payments of ₹99 (9900 paise)
-      if (status === 'captured' && amount === 9900) {
+      // Only process successful payments of ₹99 (9900 paise) or ₹1 (100 paise for testing)
+      if (status === 'captured' && (amount === 9900 || amount === 100)) {
         // Check if user already has a subscription
         const existingSubscription = await db
           .select()
@@ -81,7 +72,6 @@ export async function POST(request: Request) {
             })
             .where(eq(UserSubscription.email, email));
           
-          console.log('Updated existing subscription for:', email);
         } else {
           // Create new subscription
           await db.insert(UserSubscription).values({
@@ -93,12 +83,9 @@ export async function POST(request: Request) {
             joinDate: new Date().toISOString(),
           });
           
-          console.log('Created new subscription for:', email);
         }
 
-        console.log('✅ Premium subscription activated for:', email);
       } else {
-        console.log('❌ Payment not eligible for premium activation');
       }
     }
 

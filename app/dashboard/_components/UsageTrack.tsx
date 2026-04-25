@@ -65,8 +65,14 @@ function UsageTrack() {
       .where(
         eq(UserSubscription.email, userEmail)
       );
+    
+    // Check if user has active subscription
     if (result && result.length > 0) {
-      setUserSubscription(true);
+      const subscription = result[0];
+      const isActive = subscription.active && subscription.plan === "Professional";
+      setUserSubscription(isActive);
+    } else {
+      setUserSubscription(false);
     }
   };
 
