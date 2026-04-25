@@ -352,9 +352,9 @@ This project is licensed under the MIT License.
 
 ## 📞 Contact
 
-- **Portfolio**: [your-portfolio.com](https://rohitbadekar.vercel.app)
-- **LinkedIn**: [your-linkedin](https://www.linkedin.com/in/rohit-badekar)
-- **Email**: [your-email@example.com](mailto:rohitbadekar555@gmail.com)
+- **Portfolio**: [https://rohitbadekar.vercel.app](https://rohitbadekar.vercel.app)
+- **LinkedIn**: [https://www.linkedin.com/in/rohit-badekar](https://www.linkedin.com/in/rohit-badekar)
+- **Email**: [mailto:rohitbadekar555@gmail.com](mailto:rohitbadekar555@gmail.com)
 
 ---
 
