@@ -3,7 +3,7 @@ import React, { useContext, useState, use } from "react";
 import FormSection from "../_components/FormSection";
 import OutputSection from "../_components/OutputSection";
 import { TEMPLATE } from "../../_components/TemplateListSection";
-import Templates from "@/app/(data)/Templates";
+import Templates, { getTemplatesForUser } from "@/app/(data)/Templates";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -37,6 +37,10 @@ function CreateNewContent(props: PROPS) {
   );
   const { userSubscription } = useContext(UserSubscriptionContext);
   const { setLoading } = useLoading();
+
+  // Check if user has access to this template
+  const availableTemplates = getTemplatesForUser(userSubscription ? true : false);
+  const hasAccess = selectedTemplate && availableTemplates.some(t => t.slug === selectedTemplate.slug);
 
   // Set maxWords based on subscription status with consistent initial value
   const maxWords = userSubscription ? 1000000 : 100000; // 10,00,000 paid, 1,00,000 free
@@ -99,6 +103,37 @@ function CreateNewContent(props: PROPS) {
     });
     console.log(result);
   };
+
+  // Show access denied message if user doesn't have access
+  if (!hasAccess) {
+    return (
+      <div className="p-6 bg-slate-50 min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m8-10V6a4 4 0 00-8 0v4h8zm-4 10a2 2 0 100-4 2 2 0 000 4z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Premium Template</h2>
+          <p className="text-gray-600 mb-6">
+            This template is only available for premium users. Upgrade to unlock all {Templates.length}+ professional templates.
+          </p>
+          <div className="space-y-3">
+            <Link href="/dashboard/billing">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Upgrade to Premium - ₹99 Once
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="outline" className="w-full">
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
