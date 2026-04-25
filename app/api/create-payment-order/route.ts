@@ -10,14 +10,9 @@ export async function POST(request: NextRequest) {
   try {
     const { amount, planName } = await request.json();
 
-    console.log('=== PAYMENT ORDER CREATION ===');
-    console.log('Plan Name:', planName);
-    console.log('Amount:', amount);
-    console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
 
     // Validate amount
     if (!amount || amount < 100) {
-      console.error('Invalid amount:', amount);
       return NextResponse.json(
         { error: 'Minimum amount is Rs 1 (100 paise)' },
         { status: 400 }
@@ -36,13 +31,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Order created successfully:', order.id);
-    console.log('Order details:', {
-      id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      status: order.status
-    });
 
     return NextResponse.json({
       order_id: order.id,
@@ -52,11 +40,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('=== ERROR CREATING ORDER ===');
-    console.error('Error:', error);
-    console.error('Error type:', typeof error);
-    console.error('Error message:', error instanceof Error ? error.message : String(error));
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack available');
     
     return NextResponse.json(
       { 

@@ -8,7 +8,7 @@ import Script from "next/script";
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
 
   const features = [
     {
@@ -77,11 +77,20 @@ export default function LandingPage() {
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               {isSignedIn ? (
-                <Link href="/dashboard">
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    Go to Dashboard
-                  </Button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com' && (
+                    <Link href="/admin">
+                      <Button variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href="/dashboard">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Go to Dashboard
+                    </Button>
+                  </Link>
+                </div>
               ) : (
                 <>
                   <Link href="/sign-in">
@@ -114,11 +123,20 @@ export default function LandingPage() {
               <a href="#admin" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Admin</a>
               <div className="pt-4 space-y-2">
                 {isSignedIn ? (
-                  <Link href="/dashboard">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                      Go to Dashboard
-                    </Button>
-                  </Link>
+                  <>
+                    {user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com' && (
+                      <Link href="/admin">
+                        <Button variant="outline" className="w-full bg-white text-blue-600 hover:bg-blue-50">
+                          Admin Panel
+                        </Button>
+                      </Link>
+                    )}
+                    <Link href="/dashboard">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <Link href="/sign-in">
