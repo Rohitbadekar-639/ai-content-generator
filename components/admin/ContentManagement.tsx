@@ -97,8 +97,8 @@ export default function ContentManagement() {
         setUserActivity(userData);
         
         // Calculate stats
-        const uniqueUsers = new Set(contentData.map(c => c.createdBy)).size;
-        const uniqueTemplates = new Set(contentData.map(c => c.templateSlug)).size;
+        const uniqueUsers = new Set(contentData.map((c: any) => c.createdBy)).size;
+        const uniqueTemplates = new Set(contentData.map((c: any) => c.templateSlug)).size;
         const avgContentPerUser = uniqueUsers > 0 ? contentData.length / uniqueUsers : 0;
         
         const mostActiveUser = userData.length > 0 ? userData[0].email : 'N/A';
@@ -117,7 +117,7 @@ export default function ContentManagement() {
         let filteredContent = contentData;
         
         if (searchTerm) {
-          filteredContent = filteredContent.filter(item => 
+          filteredContent = filteredContent.filter((item: any) => 
             item.aiResponse?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.templateSlug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.createdBy?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -125,11 +125,11 @@ export default function ContentManagement() {
         }
         
         if (templateFilter) {
-          filteredContent = filteredContent.filter(item => item.templateSlug === templateFilter);
+          filteredContent = filteredContent.filter((item: any) => item.templateSlug === templateFilter);
         }
         
         if (userFilter) {
-          filteredContent = filteredContent.filter(item => item.createdBy === userFilter);
+          filteredContent = filteredContent.filter((item: any) => item.createdBy === userFilter);
         }
         
         setContent(filteredContent);

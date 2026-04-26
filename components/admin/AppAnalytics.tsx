@@ -92,17 +92,17 @@ export default function AppAnalytics() {
       if (result.success) {
         const data = result.data;
         const allUsers = data.allUsers || [];
-        const allContent = data.allContent || [];
         const templateUsage = data.templateUsage || [];
         const topUsers = data.topUsers || [];
+        const allContent = data.allContent || [];
         
         // Calculate app metrics
         const totalUsers = allUsers.length;
-        const activeUsers = allUsers.filter(user => user.active).length;
-        const paidUsers = allUsers.filter(user => user.active && user.plan === 'Professional').length;
+        const activeUsers = allUsers.filter((user: any) => user.active).length;
+        const paidUsers = allUsers.filter((user: any) => user.active && user.plan === 'Professional').length;
         const freeUsers = totalUsers - paidUsers;
         const totalContent = allContent.length;
-        const todayContent = allContent.filter(content => {
+        const todayContent = allContent.filter((content: any) => {
           if (!content.createdAt) return false;
           const contentDate = new Date(content.createdAt);
           const today = new Date();
@@ -155,7 +155,7 @@ export default function AppAnalytics() {
         setDailyStats(dailyData);
         
         // Process template analytics
-        const templateData: TemplateAnalytics[] = templateUsage.slice(0, 10).map(template => ({
+        const templateData: TemplateAnalytics[] = templateUsage.slice(0, 10).map((template: any) => ({
           templateSlug: template.templateSlug,
           usageCount: template.count,
           uniqueUsers: Math.min(template.count, Math.max(1, Math.floor(template.count * 0.7))), // 70% of usage

@@ -93,7 +93,7 @@ export default function FinancialAnalytics() {
       if (result.success) {
         const data = result.data;
         const allUsers = data.allUsers || [];
-        const paidUsers = allUsers.filter(user => user.active && user.plan === 'Professional');
+        const paidUsers = allUsers.filter((user: any) => user.active && user.plan === 'Professional');
         
         // Calculate financial metrics
         const totalRevenue = paidUsers.length * 99;
@@ -169,7 +169,7 @@ export default function FinancialAnalytics() {
         setMonthlyRevenue(monthlyData);
         
         // Top paying customers
-        const customers: TopPayingCustomers[] = paidUsers.slice(0, 10).map(user => ({
+        const customers: TopPayingCustomers[] = paidUsers.slice(0, 10).map((user: any) => ({
           email: user.email,
           totalSpent: 99,
           plan: user.plan,
