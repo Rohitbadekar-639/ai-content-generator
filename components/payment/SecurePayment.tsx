@@ -91,7 +91,10 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
 
       const orderData = await response.json();
 
+      console.log('📦 Order creation response:', orderData);
+
       if (!orderData.success) {
+        console.error('❌ Order creation failed:', orderData);
         alert("Payment initialization failed: " + (orderData.error || "Unknown error"));
         throw new Error(orderData.error || "Payment initialization failed");
       }

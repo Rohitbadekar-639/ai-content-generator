@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const options: any = {
       amount: amount, // Dynamic: ₹1 for admin, ₹99 for users
       currency: "INR",
-      receipt: `rapidcontent_${userId}_${Date.now()}`,
+      receipt: `rc_${Date.now().toString(36)}`,
       notes: {
         user_id: userId,
         user_email: userEmail,
@@ -56,10 +56,30 @@ export async function POST(request: Request) {
     };
 
     console.log('Creating Razorpay order with options:', options);
+    console.log('Using Razorpay Key ID:', process.env.RAZORPAY_KEY_ID?.substring(0, 10) + '...');
 
-    const order = await razorpay.orders.create(options);
-
-    console.log('✅ Razorpay order created:', order);
+    let order;
+    try {
+      order = await razorpay.orders.create(options);
+      console.log('✅ Razorpay order created:', order);
+    } catch (razorpayError: any) {
+      console.error('❌ Razorpay order creation failed:', razorpayError);
+      console.error('Error details:', {
+        message: razorpayError?.message || 'Unknown error',
+        code: razorpayError?.code || 'UNKNOWN',
+        description: razorpayError?.description || 'No description',
+        statusCode: razorpayError?.statusCode || 'N/A'
+      });
+      
+      return NextResponse.json(
+        { 
+          error: `Razorpay order creation failed: ${razorpayError?.message || 'Unknown error'}`,
+          details: razorpayError?.description || 'Unknown Razorpay error',
+          code: razorpayError?.code || 'UNKNOWN'
+        },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
