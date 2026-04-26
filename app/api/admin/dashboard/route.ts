@@ -13,14 +13,26 @@ export async function GET(request: Request) {
     
     const totalUsers = totalUsersResult[0]?.count || 0;
 
-    // Get active subscriptions
+    // Get active subscriptions (excluding admin)
     const activeSubscriptionsResult = await db
       .select({ count: count() })
       .from(UserSubscription)
       .where(eq(UserSubscription.active, true));
     
     const activeSubscriptions = activeSubscriptionsResult[0]?.count || 0;
-    const totalRevenue = activeSubscriptions * 99; // ₹99 per active subscription
+    
+    // Count admin users to exclude from revenue
+    const adminUsersResult = await db
+      .select({ count: count() })
+      .from(UserSubscription)
+      .where(eq(UserSubscription.email, 'rohitbadekar555@gmail.com'));
+    
+    const adminCount = adminUsersResult[0]?.count || 0;
+    const payingUsers = Math.max(0, activeSubscriptions - adminCount); // Exclude admin from revenue
+    const totalRevenue = payingUsers * 99; // ₹99 per paying user (excluding admin)
+    
+    // Update activeSubscriptions to show only paying users
+    const activePayingSubscriptions = payingUsers;
 
     // Get total content generated
     const totalContentResult = await db
@@ -107,7 +119,7 @@ export async function GET(request: Request) {
       totalUsers,
       totalRevenue,
       totalContent,
-      activeSubscriptions,
+      activeSubscriptions: activePayingSubscriptions, // Show only paying users
       todayUsers,
       todayContent,
       weeklyUsers,

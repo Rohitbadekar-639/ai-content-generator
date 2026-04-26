@@ -7,7 +7,6 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json();
 
-
     if (!email) {
       return NextResponse.json(
         { error: 'Email is required' },
@@ -15,7 +14,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check user subscription
+    // Check if user is admin
+    const isAdmin = email === 'rohitbadekar555@gmail.com';
+    
+    // Admin gets automatic subscription
+    if (isAdmin) {
+      return NextResponse.json(
+        { 
+          isSubscribed: true,
+          subscription: {
+            email: email,
+            active: true,
+            plan: 'Professional',
+            paymentId: 'admin-access',
+            joinDate: new Date().toISOString()
+          }
+        },
+        { status: 200 }
+      );
+    }
+
+    // Check regular user subscription
     const result = await db
       .select()
       .from(UserSubscription)
@@ -26,8 +45,6 @@ export async function POST(request: Request) {
     if (result && result.length > 0) {
       const subscription = result[0];
       isSubscribed = Boolean(subscription.active && subscription.plan === "Professional");
-      
-    } else {
     }
 
     return NextResponse.json(

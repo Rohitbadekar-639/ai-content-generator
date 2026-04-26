@@ -28,14 +28,17 @@ function TemplateListSection({ userSearchInput }: any) {
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check user subscription status
-  useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user?.primaryEmailAddress?.emailAddress) {
-        setLoading(false);
-        return;
-      }
+  // Check if user is admin
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
 
+  // Check user subscription status (skip for admin)
+  useEffect(() => {
+    if (!user?.primaryEmailAddress?.emailAddress) {
+      setLoading(false);
+      return;
+    }
+
+    const checkSubscription = async () => {
       try {
         const response = await fetch('/api/check-subscription', {
           method: 'POST',
@@ -43,7 +46,7 @@ function TemplateListSection({ userSearchInput }: any) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: user.primaryEmailAddress.emailAddress,
+            email: user.primaryEmailAddress?.emailAddress || '',
           }),
         });
 
@@ -64,7 +67,8 @@ function TemplateListSection({ userSearchInput }: any) {
   useEffect(() => {
     if (loading) return;
 
-    const availableTemplates = getTemplatesForUser(isPremium);
+    // Admin gets all templates regardless of subscription
+    const availableTemplates = isAdmin ? Templates : getTemplatesForUser(isPremium);
     
     if (userSearchInput) {
       const filteredData = availableTemplates.filter((item) =>
@@ -74,7 +78,7 @@ function TemplateListSection({ userSearchInput }: any) {
     } else {
       setTemplateList(availableTemplates);
     }
-  }, [userSearchInput, isPremium, loading]);
+  }, [userSearchInput, isPremium, loading, isAdmin]);
 
   if (loading) {
     return (
@@ -86,14 +90,14 @@ function TemplateListSection({ userSearchInput }: any) {
 
   return (
     <div>
-      {/* Premium Banner for Free Users */}
-      {!isPremium && (
+      {/* Premium Banner for Free Users (not shown to admin) */}
+      {!isPremium && !isAdmin && (
         <div className="mx-8 mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-bold mb-2">🔒 Upgrade to Premium</h3>
               <p className="text-blue-100">
-                Get access to all {Templates.length}+ templates and unlock unlimited content generation!
+                Get access to all {Templates.length.toString()}+ templates and unlock unlimited content generation!
               </p>
             </div>
             <a href="/dashboard/billing" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
@@ -109,15 +113,15 @@ function TemplateListSection({ userSearchInput }: any) {
           <TemplateCard key={index} {...items} />
         ))}
         
-        {/* Show upgrade prompt for free users if they have fewer templates */}
-        {!isPremium && templateList.length < Templates.length && (
+        {/* Show upgrade prompt for free users if they have fewer templates (not shown to admin) */}
+        {!isPremium && !isAdmin && templateList.length < Templates.length && (
           <div className="col-span-full text-center p-8">
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-2">
                 Want more templates?
               </h4>
               <p className="text-gray-600 mb-4">
-                Upgrade to premium to unlock all {Templates.length}+ professional templates
+                Upgrade to premium to unlock all {Templates.length.toString()}+ professional templates
               </p>
               <a href="/dashboard/billing" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
                 Upgrade Now - ₹99 Once

@@ -38,23 +38,26 @@ function CreateNewContent(props: PROPS) {
   const { userSubscription } = useContext(UserSubscriptionContext);
   const { setLoading } = useLoading();
 
-  // Check if user has access to this template
-  const availableTemplates = getTemplatesForUser(userSubscription ? true : false);
-  const hasAccess = selectedTemplate && availableTemplates.some(t => t.slug === selectedTemplate.slug);
+  // Check if user is admin
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
 
-  // Set maxWords based on subscription status with consistent initial value
-  const maxWords = userSubscription ? 1000000 : 100000; // 10,00,000 paid, 1,00,000 free
+  // Check if user has access to this template (admin bypasses all restrictions)
+  const availableTemplates = getTemplatesForUser(userSubscription ? true : false);
+  const hasAccess = isAdmin || (selectedTemplate && availableTemplates.some(t => t.slug === selectedTemplate.slug));
+
+  // Set maxWords based on subscription status (admin gets unlimited)
+  const maxWords = isAdmin ? 999999999 : (userSubscription ? 1000000 : 100000); // Admin unlimited, paid 10L, free 1L
 
   const GenerateAIContent = async (formData: any) => {
     if (!selectedTemplate) {
       return;
     }
 
-    // Check usage limits before generation
-    const maxWords = userSubscription ? 1000000 : 100000; // Updated limits
-    if (totalUsage >= maxWords) {
+    // Check usage limits before generation (admin bypasses)
+    const maxWordsForGeneration = isAdmin ? 999999999 : (userSubscription ? 1000000 : 100000);
+    if (!isAdmin && totalUsage >= maxWordsForGeneration) {
       const planName = userSubscription ? "Professional" : "Free";
-      alert(`You've reached your ${planName} plan limit of ${maxWords.toLocaleString()} words. Please upgrade to continue generating content.`);
+      alert(`You've reached your ${planName} plan limit of ${maxWordsForGeneration.toLocaleString()} words. Please upgrade to continue generating content.`);
       return;
     }
 
@@ -116,7 +119,7 @@ function CreateNewContent(props: PROPS) {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Premium Template</h2>
           <p className="text-gray-600 mb-6">
-            This template is only available for premium users. Upgrade to unlock all {Templates.length}+ professional templates.
+            This template is only available for premium users. Upgrade to unlock all {Templates.length.toString()}+ professional templates.
           </p>
           <div className="space-y-3">
             <Link href="/dashboard/billing">

@@ -4,10 +4,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const { user } = useUser();
+  
+  // Check if user is admin
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -53,25 +58,37 @@ function Header() {
       
       {/* Right Section */}
       <div className="flex gap-4 items-center">
-        <Link href="/admin">
-          <Button variant="outline" size="sm" className="flex items-center gap-2 border-gray-300">
-            <Settings className="w-4 h-4" />
-            Admin
-          </Button>
-        </Link>
-        <div className="relative group">
-          <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-            Legal
-          </Button>
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            <Link href="/privacy-policy" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Privacy Policy</Link>
-            <Link href="/terms-of-service" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Terms of Service</Link>
-            <Link href="/refund-policy" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Refund Policy</Link>
+        {/* Admin Button - Only for admin users */}
+        {isAdmin && (
+          <Link href="/admin">
+            <Button variant="outline" size="sm" className="flex items-center gap-2 border-gray-300">
+              <Settings className="w-4 h-4" />
+              Admin
+            </Button>
+          </Link>
+        )}
+        
+        {/* Legal Button - Only for admin users */}
+        {isAdmin && (
+          <div className="relative group">
+            <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+              Legal
+            </Button>
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <Link href="/privacy-policy" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Terms of Service</Link>
+              <Link href="/refund-policy" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Refund Policy</Link>
+            </div>
           </div>
-        </div>
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
-          🔥 Get Premium for ₹99
-        </div>
+        )}
+        
+        {/* Premium Button - Only for non-admin users */}
+        {!isAdmin && (
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
+            🔥 Get Premium for ₹99
+          </div>
+        )}
+        
         <UserButton />
       </div>
       </div>

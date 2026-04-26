@@ -13,7 +13,18 @@ function Billing() {
   const { setUserSubscription } = useContext(UserSubscriptionContext);
   const { userSubscription } = useContext(UserSubscriptionContext);
 
+  // Check if user is admin
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
   
+  // For admin, show test pricing. For users, show real pricing
+  const adminPrice = 1;
+  const userPrice = 99;
+  const displayPrice = isAdmin ? adminPrice : userPrice;
+  const wordCredits = isAdmin ? 10000 : 100000;
+  
+  // Format numbers consistently to avoid hydration mismatch
+  const formattedWordCredits = wordCredits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
   // Refresh subscription status
   useEffect(() => {
     if (user?.primaryEmailAddress?.emailAddress) {
@@ -28,22 +39,30 @@ function Billing() {
       })
       .then(res => res.json())
       .then(data => {
-        if (data.isSubscribed) {
-          setUserSubscription(true);
-        } else {
-          setUserSubscription(false);
-        }
+        console.log('Subscription data:', data);
+        setUserSubscription(data.subscription);
       })
       .catch(error => {
-        setUserSubscription(false);
+        console.error('Error checking subscription:', error);
       });
     }
-  }, [user, setUserSubscription]);
+  }, [user?.primaryEmailAddress?.emailAddress, setUserSubscription]);
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Get Premium Access</h1>
+        {isAdmin ? (
+          <div className="text-center mb-8">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+              <h1 className="text-2xl font-bold text-green-800 mb-2">👑 Admin Access</h1>
+              <p className="text-green-600">
+                You have unlimited access to all features, templates, and content generation. No payment required.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <h1 className="text-2xl font-bold mb-6">Get Premium Access</h1>
+        )}
         
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Free Plan */}
@@ -93,20 +112,22 @@ function Billing() {
             </div>
 
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-2">Premium Plan</h3>
+              <h3 className="text-2xl font-bold mb-2">
+                {isAdmin ? 'Test Plan' : 'Premium Plan'}
+              </h3>
               <div className="text-4xl font-bold mb-2">
-                ₹99
-                <span className="text-lg font-normal"> once</span>
+                ₹{displayPrice}
+                <span className="text-lg font-normal"> {isAdmin ? 'test' : 'once'}</span>
               </div>
               <p className="text-blue-100">
-                100,000 words credits
+                {formattedWordCredits} words credits
               </p>
             </div>
 
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white">100,000 words credits</span>
+                <span className="text-white">{formattedWordCredits} words credits</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
@@ -121,21 +142,29 @@ function Billing() {
                 <span className="text-white">Lifetime access</span>
               </li>
             </ul>
-            {userSubscription ? (
+            {userSubscription && userSubscription.active ? (
               <Button disabled className="w-full bg-white text-blue-600">
                 <CheckCircle2 className="w-4 h-4 mr-2" />
-                Premium Active
+                {isAdmin ? 'Admin Access Active' : 'Premium Active - Paid'}
               </Button>
             ) : (
-              <SecurePayment
-                onSuccess={() => {
-                  // Refresh subscription status
-                  window.location.reload();
-                }}
-                onError={(error) => {
-                  // Payment error handled
-                }}
-              />
+              <div>
+                <p className="text-sm text-gray-300 mb-4">
+                  {isAdmin 
+                    ? 'Test payment for admin (₹1)' 
+                    : 'One-time payment for lifetime access'
+                  }
+                </p>
+                <SecurePayment
+                  onSuccess={() => {
+                    // Refresh subscription status
+                    window.location.reload();
+                  }}
+                  onError={(error) => {
+                    // Payment error handled
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>

@@ -6,9 +6,14 @@ import { eq } from "drizzle-orm";
 export async function POST(request: Request) {
   try {
     const { email, plan, paymentId } = await request.json();
-
+    
+    console.log('=== ACTIVATE SUBSCRIPTION REQUEST ===');
+    console.log('Email:', email);
+    console.log('Plan:', plan);
+    console.log('PaymentId:', paymentId);
 
     if (!email) {
+      console.log('❌ Email is missing');
       return NextResponse.json(
         { error: 'Email is required' },
         { status: 400 }
@@ -21,7 +26,10 @@ export async function POST(request: Request) {
       .from(UserSubscription)
       .where(eq(UserSubscription.email, email));
 
+    console.log('Existing subscription:', existingSubscription);
+
     if (existingSubscription && existingSubscription.length > 0) {
+      console.log('📝 Updating existing subscription');
       // Update existing subscription
       await db
         .update(UserSubscription)
@@ -34,6 +42,7 @@ export async function POST(request: Request) {
         .where(eq(UserSubscription.email, email));
       
     } else {
+      console.log('📝 Creating new subscription');
       // Create new subscription
       await db.insert(UserSubscription).values({
         email: email,
@@ -46,6 +55,8 @@ export async function POST(request: Request) {
       
     }
 
+    console.log('✅ Subscription activated successfully for:', email);
+    
     return NextResponse.json(
       { 
         success: true, 

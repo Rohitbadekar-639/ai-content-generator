@@ -2,12 +2,21 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
 // FIXED PRICING - Users cannot modify this
-const FIXED_PRICE = 99; // ₹99 fixed
+const FIXED_PRICE = 99; // ₹99 fixed for users
 const FIXED_AMOUNT_PAISE = 9900; // ₹99 in paise (Razorpay uses paise)
+const ADMIN_PRICE = 1; // ₹1 for admin testing
+const ADMIN_AMOUNT_PAISE = 100; // ₹1 in paise
 
 export async function POST(request: Request) {
   try {
     const { userId, userEmail } = await request.json();
+
+    // Check if user is admin
+    const isAdmin = userEmail === 'rohitbadekar555@gmail.com';
+    
+    // Set pricing based on user type
+    const price = isAdmin ? ADMIN_PRICE : FIXED_PRICE;
+    const amount = isAdmin ? ADMIN_AMOUNT_PAISE : FIXED_AMOUNT_PAISE;
 
     // Validate required fields
     if (!userId || !userEmail) {
@@ -31,21 +40,26 @@ export async function POST(request: Request) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    // CREATE FIXED AMOUNT ORDER - Users cannot change this
-    const options = {
-      amount: FIXED_AMOUNT_PAISE, // FIXED: ₹99 - NO MODIFICATION ALLOWED
+    
+    // CREATE ORDER WITH DYNAMIC AMOUNT BASED ON USER TYPE
+    const options: any = {
+      amount: amount, // Dynamic: ₹1 for admin, ₹99 for users
       currency: "INR",
       receipt: `rapidcontent_${userId}_${Date.now()}`,
       notes: {
         user_id: userId,
         user_email: userEmail,
         plan: "Professional",
-        price: FIXED_PRICE,
-        timestamp: new Date().toISOString(),
+        price: price,
+        is_admin: isAdmin,
       },
     };
 
+    console.log('Creating Razorpay order with options:', options);
+
     const order = await razorpay.orders.create(options);
+
+    console.log('✅ Razorpay order created:', order);
 
     return NextResponse.json({
       success: true,
@@ -54,19 +68,28 @@ export async function POST(request: Request) {
         amount: order.amount,
         currency: order.currency,
         receipt: order.receipt,
-        // IMPORTANT: Send fixed price to frontend for display
-        display_amount: FIXED_PRICE,
+        display_amount: price, // Show ₹1 for admin, ₹99 for users
         plan_name: "Professional",
-        plan_features: [
-          "10,00,000 words/month",
+        plan_features: isAdmin ? [
+          "Admin testing mode",
+          "Unlimited access", 
+          "Full features"
+        ] : [
+          "1,00,000 words credits",
           "50+ templates", 
-          "Priority support",
-          "Unlimited downloads"
+          "Lifetime access",
+          "Priority support"
         ]
       },
     });
 
   } catch (error) {
+    console.error('=== PAYMENT ATTEMPT ERROR ===');
+    console.error('Error:', error);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Razorpay Key ID exists:', !!process.env.RAZORPAY_KEY_ID);
+    console.error('Razorpay Secret exists:', !!process.env.RAZORPAY_KEY_SECRET);
+    
     return NextResponse.json(
       { 
         error: "Failed to create payment order",

@@ -12,6 +12,14 @@ interface SecurePaymentProps {
 export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useUser();
+  
+  // Check if user is admin
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
+  const displayPrice = isAdmin ? 1 : 99; // ₹1 for admin, ₹99 for users
+  const wordCredits = isAdmin ? 10000 : 100000; // 10k for admin, 100k for users
+  
+  // Format credits consistently to avoid hydration mismatch
+  const formattedCredits = wordCredits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   // Inline Razorpay loading function
   const loadRazorpay = (): Promise<any> => {
@@ -36,10 +44,15 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
   };
 
   const handlePayment = async () => {
+    // Check if user is logged in
     if (!user?.primaryEmailAddress?.emailAddress) {
-      alert("Please login to continue");
+      alert("Please login to continue with payment");
       return;
     }
+
+    console.log('💳 Starting payment process for:', user.primaryEmailAddress.emailAddress);
+    console.log('💰 Amount:', displayPrice, '₹');
+    console.log('👑 Is Admin:', isAdmin);
 
     setIsLoading(true);
 
@@ -83,6 +96,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
         throw new Error(orderData.error || "Payment initialization failed");
       }
 
+      
       // Step 3: Open Razorpay with FIXED amount
       const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
       
@@ -126,7 +140,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              expected_amount: orderData.data.amount, // Verify expected amount
+              expected_amount: orderData.data.amount, // Dynamic verification
             }),
           });
 
@@ -164,6 +178,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          email: user?.primaryEmailAddress?.emailAddress, // Add user email
           plan: "Professional",
           amount: 99, // FIXED: ₹99
           paymentId: Date.now().toString(),
@@ -195,7 +210,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
         ) : (
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4" />
-            Buy Once - ₹99 Lifetime
+            {isAdmin ? 'Test Payment - ₹1' : `Buy Once - ₹${displayPrice} Lifetime`}
           </div>
         )}
       </Button>
@@ -204,11 +219,11 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
       <div className="space-y-2 text-xs text-gray-100">
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-green-500" />
-          <span>One-time payment: ₹99 (lifetime)</span>
+          <span>One-time payment: ₹{displayPrice} ({isAdmin ? 'testing' : 'lifetime'})</span>
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-green-500" />
-          <span>100,000 words credits included</span>
+          <span>{formattedCredits} words credits included</span>
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-green-500" />

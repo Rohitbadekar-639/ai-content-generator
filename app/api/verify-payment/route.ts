@@ -3,18 +3,18 @@ import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, expected_amount } = await request.json();
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, expected_amount, is_mock } = await request.json();
 
     // Validate required fields
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !expected_amount) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json(
-        { error: 'Missing payment details' },
+        { error: "Missing required payment details" },
         { status: 400 }
       );
     }
 
-    // SECURITY CHECK: Verify expected amount is FIXED ₹99 (9900 paise)
-    if (expected_amount !== 9900) {
+    // SECURITY CHECK: Verify expected amount is either ₹1 (100 paise for admin) or ₹99 (9900 paise for users)
+    if (expected_amount !== 9900 && expected_amount !== 100) {
       return NextResponse.json(
         { error: 'Invalid payment amount - security violation' },
         { status: 400 }
