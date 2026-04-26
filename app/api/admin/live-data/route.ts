@@ -86,7 +86,8 @@ export async function GET(request: Request) {
 
     // 7. User statistics with content counts
     const usersWithStats = allUsers.map(user => {
-      const userContent = userContentMap[user.email] || { count: 0, lastActivity: new Date().toISOString() };
+      const userEmail = user.email || '';
+      const userContent = userContentMap[userEmail] || { count: 0, lastActivity: new Date().toISOString() };
       return {
         ...user,
         contentCount: userContent.count,
