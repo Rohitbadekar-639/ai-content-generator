@@ -35,22 +35,45 @@ export async function POST(request: Request) {
     }
 
     // Check regular user subscription
+    console.log('🔍 Checking subscription for email:', email);
+    
     const result = await db
       .select()
       .from(UserSubscription)
       .where(eq(UserSubscription.email, email));
 
+    console.log('📊 Database result:', result);
+    console.log('📊 Result length:', result?.length);
+
     let isSubscribed: boolean = false;
+    let subscriptionData = null;
     
     if (result && result.length > 0) {
       const subscription = result[0];
+      console.log('📋 Found subscription:', subscription);
+      console.log('📋 Subscription active:', subscription.active);
+      console.log('📋 Subscription plan:', subscription.plan);
+      
+      // Check if user has paid (Professional plan) or is still Free
       isSubscribed = Boolean(subscription.active && subscription.plan === "Professional");
+      
+      // If user has Free plan but active=true, they haven't paid yet
+      if (subscription.active && subscription.plan === "Free") {
+        console.log('⚠️ User has Free plan - not subscribed');
+        isSubscribed = false;
+      }
+      
+      subscriptionData = subscription;
+      
+      console.log('✅ User is subscribed:', isSubscribed);
+    } else {
+      console.log('❌ No subscription found for user');
     }
 
     return NextResponse.json(
       { 
         isSubscribed: Boolean(isSubscribed),
-        subscription: result[0] || null
+        subscription: subscriptionData
       },
       { status: 200 }
     );

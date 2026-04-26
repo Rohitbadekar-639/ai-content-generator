@@ -27,31 +27,50 @@ function Billing() {
 
   // Refresh subscription status
   useEffect(() => {
-    if (user?.primaryEmailAddress?.emailAddress) {
-      fetch('/api/check-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.primaryEmailAddress.emailAddress,
-        }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Subscription data:', data);
-        setUserSubscription(data.subscription);
-      })
-      .catch(error => {
-        console.error('Error checking subscription:', error);
-      });
+    const userEmail = user?.primaryEmailAddress?.emailAddress;
+    if (userEmail) {
+      console.log('🔍 Checking subscription for:', userEmail);
+      
+      const checkSubscription = async () => {
+        try {
+          const response = await fetch('/api/check-subscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: userEmail,
+            }),
+          });
+          
+          const data = await response.json();
+          console.log('📊 Subscription data received:', data);
+          console.log('📋 Setting userSubscription to:', data.subscription);
+          
+          // Set subscription data
+          setUserSubscription(data.subscription);
+          
+          // Log the final state
+          console.log('🎯 Final subscription state:', {
+            hasSubscription: !!data.subscription,
+            isActive: data.subscription?.active,
+            plan: data.subscription?.plan
+          });
+          
+        } catch (error) {
+          console.error('❌ Error checking subscription:', error);
+          setUserSubscription(null);
+        }
+      };
+      
+      checkSubscription();
     }
   }, [user?.primaryEmailAddress?.emailAddress, setUserSubscription]);
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       <div className="max-w-4xl mx-auto">
-        {isAdmin ? (
+                {isAdmin ? (
           <div className="text-center mb-8">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
               <h1 className="text-2xl font-bold text-green-800 mb-2">👑 Admin Access</h1>
@@ -142,7 +161,7 @@ function Billing() {
                 <span className="text-white">Lifetime access</span>
               </li>
             </ul>
-            {userSubscription && userSubscription.active ? (
+            {userSubscription?.active === true && userSubscription?.plan === "Professional" ? (
               <Button disabled className="w-full bg-white text-blue-600">
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 {isAdmin ? 'Admin Access Active' : 'Premium Active - Paid'}
@@ -156,12 +175,32 @@ function Billing() {
                   }
                 </p>
                 <SecurePayment
-                  onSuccess={() => {
-                    // Refresh subscription status
+                  onSuccess={async () => {
+                    // Refresh subscription status after successful payment
+                    if (user?.primaryEmailAddress?.emailAddress) {
+                      try {
+                        const response = await fetch('/api/check-subscription', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            email: user.primaryEmailAddress.emailAddress,
+                          }),
+                        });
+                        const data = await response.json();
+                        setUserSubscription(data.subscription);
+                        console.log('✅ Subscription updated after payment:', data.subscription);
+                      } catch (error) {
+                        console.error('Error refreshing subscription:', error);
+                      }
+                    }
+                    // Force page refresh to show updated UI
                     window.location.reload();
                   }}
                   onError={(error) => {
                     // Payment error handled
+                    console.error('Payment error:', error);
                   }}
                 />
               </div>

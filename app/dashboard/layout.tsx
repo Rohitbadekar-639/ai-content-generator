@@ -12,7 +12,7 @@ function layout({
   children: React.ReactNode;
 }>) {
   const [totalUsage, setTotalUsage] = useState<Number>(0);
-  const [userSubscription, setUserSubscription] = useState<boolean>(false);
+  const [userSubscription, setUserSubscription] = useState<any>(null);
   const [updateCreditUsage, setUpdateCreditUsage] = useState<any>();
 
   return (
