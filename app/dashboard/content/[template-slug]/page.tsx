@@ -6,7 +6,7 @@ import { TEMPLATE } from "../../_components/TemplateListSection";
 import Templates, { getTemplatesForUser } from "@/app/(data)/Templates";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw, Crown } from "lucide-react";
 import { db } from "@/utils/db";
 import { AIOutput } from "@/utils/schema";
 import { useUser } from "@clerk/nextjs";
@@ -41,6 +41,44 @@ function CreateNewContent(props: PROPS) {
   // Check if user is admin
   const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
 
+  // Admin reset credits function
+  const resetCredits = async () => {
+    if (!isAdmin || !user?.id) return;
+
+    try {
+      setLoading(true, "Resetting credits...");
+      
+      const response = await fetch('/api/admin/reset-credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          targetUserId: user.id,
+          targetUserEmail: user?.primaryEmailAddress?.emailAddress
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Reset the total usage in context
+        setTotalUsage(0);
+        // Trigger update to refetch data from database
+        setUpdateCreditUsage(Date.now());
+        
+        // Add small delay to ensure UI updates
+        setTimeout(() => {
+          setUpdateCreditUsage(Date.now() + 1);
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error resetting credits:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Check if user has access to this template (admin bypasses all restrictions)
   const availableTemplates = getTemplatesForUser(userSubscription ? true : false);
   const hasAccess = isAdmin || (selectedTemplate && availableTemplates.some(t => t.slug === selectedTemplate.slug));
@@ -64,7 +102,11 @@ function CreateNewContent(props: PROPS) {
     setLocalLoading(true);
     setLoading(true, "Generating AI content...");
     const SelectedPrompt = selectedTemplate?.aiPrompt;
-    const FinalAIPrompt = JSON.stringify(formData) + ", " + SelectedPrompt;
+    const FinalAIPrompt = `USER INPUT: ${JSON.stringify(formData)}
+
+TASK: ${SelectedPrompt}
+
+REQUIREMENTS: Generate comprehensive, publication-ready content that exceeds expectations. Include insights, examples, and actionable advice. Format properly. Make it impressive and immediately usable.`;
     
     try {
       const response = await fetch('/api/groq', {
@@ -82,10 +124,22 @@ function CreateNewContent(props: PROPS) {
       
       if (response.ok) {
         const result = data.response;
+        
+        // Show notification if using backup service
+        if (data.provider === "Gemini" && data.message) {
+          console.log("🔄 Using backup AI service:", data.message);
+        }
+        
         setAiOutput(result);
         await SaveInDb(formData, selectedTemplate?.slug, result);
       } else {
-        setAiOutput(data.error || "Failed to generate content. Please try again.");
+        const errorMsg = data.error || "Failed to generate content. Please try again.";
+        setAiOutput(errorMsg);
+        
+        // Show more detailed error in console
+        if (data.details) {
+          console.error("🔍 AI Service Error Details:", data.details);
+        }
       }
     } catch (error) {
       setAiOutput("Network error. Please check your connection and try again.");
@@ -104,7 +158,6 @@ function CreateNewContent(props: PROPS) {
       createdBy: user?.primaryEmailAddress?.emailAddress || "",
       createdAt: moment().format("DD/MM/YYYY"),
     });
-    console.log(result);
   };
 
   // Show access denied message if user doesn't have access
@@ -140,12 +193,32 @@ function CreateNewContent(props: PROPS) {
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
-      <Link href="/dashboard">
-        <Button className="bg-white hover:bg-gray-50 border shadow-sm">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Dashboard
-        </Button>
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link href="/dashboard">
+          <Button className="bg-white hover:bg-gray-50 border shadow-sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </Link>
+        
+        {/* Admin Controls */}
+        {isAdmin && (
+          <div className="flex gap-2">
+            <Button 
+              onClick={resetCredits}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              variant="default"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Reset Credits
+            </Button>
+            <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+              <Crown className="w-4 h-4" />
+              Admin Mode
+            </div>
+          </div>
+        )}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
         <div className="lg:col-span-1">
           <FormSection

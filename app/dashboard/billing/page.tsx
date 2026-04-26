@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import SecurePayment from "@/components/payment/SecurePayment";
-import { Loader2Icon, CheckCircle2, Star, Zap } from "lucide-react";
+import { Loader2Icon, CheckCircle2, Star, Zap, RefreshCw, Crown } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
+import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
+import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
+import { useLoading } from "@/app/(context)/LoadingContext";
 import { useContext } from "react";
 
 function Billing() {
@@ -15,12 +18,48 @@ function Billing() {
 
   // Check if user is admin
   const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
+  const { totalUsage, setTotalUsage } = useContext(TotalUsageContext);
+  const { setUpdateCreditUsage } = useContext(UpdateCreditUsageContext);
+  const { setLoading: setGlobalLoading } = useLoading();
   
   // For admin, show test pricing. For users, show real pricing
   const adminPrice = 1;
   const userPrice = 99;
   const displayPrice = isAdmin ? adminPrice : userPrice;
   const wordCredits = isAdmin ? 10000 : 100000;
+
+  // Admin reset credits function
+  const resetCredits = async () => {
+    if (!isAdmin || !user?.id) return;
+
+    try {
+      setGlobalLoading(true, "Resetting credits...");
+      
+      const response = await fetch('/api/admin/reset-credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          targetUserId: user.id,
+          targetUserEmail: user?.primaryEmailAddress?.emailAddress
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Reset the total usage in context
+        setTotalUsage(0);
+        // Trigger update to refetch data from database
+        setUpdateCreditUsage(Date.now());
+      }
+    } catch (error) {
+      console.error("Error resetting credits:", error);
+    } finally {
+      setGlobalLoading(false);
+    }
+  };
   
   // Format numbers consistently to avoid hydration mismatch
   const formattedWordCredits = wordCredits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -29,8 +68,7 @@ function Billing() {
   useEffect(() => {
     const userEmail = user?.primaryEmailAddress?.emailAddress;
     if (userEmail) {
-      console.log('🔍 Checking subscription for:', userEmail);
-      
+            
       const checkSubscription = async () => {
         try {
           const response = await fetch('/api/check-subscription', {
@@ -44,18 +82,7 @@ function Billing() {
           });
           
           const data = await response.json();
-          console.log('📊 Subscription data received:', data);
-          console.log('📋 Setting userSubscription to:', data.subscription);
-          
-          // Set subscription data
           setUserSubscription(data.subscription);
-          
-          // Log the final state
-          console.log('🎯 Final subscription state:', {
-            hasSubscription: !!data.subscription,
-            isActive: data.subscription?.active,
-            plan: data.subscription?.plan
-          });
           
         } catch (error) {
           console.error('❌ Error checking subscription:', error);
@@ -74,9 +101,23 @@ function Billing() {
           <div className="text-center mb-8">
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
               <h1 className="text-2xl font-bold text-green-800 mb-2">👑 Admin Access</h1>
-              <p className="text-green-600">
+              <p className="text-green-600 mb-4">
                 You have unlimited access to all features, templates, and content generation. No payment required.
               </p>
+              <div className="flex justify-center gap-2">
+                <Button 
+                  onClick={resetCredits}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  variant="default"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reset Credits
+                </Button>
+                <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                  <Crown className="w-4 h-4" />
+                  Admin Mode
+                </div>
+              </div>
             </div>
           </div>
         ) : (

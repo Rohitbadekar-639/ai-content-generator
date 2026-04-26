@@ -8,7 +8,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/3131/3131607.png",
     slug: "rewrite-article",
     aiPrompt:
-      "Rewrite the given article to be 100% unique and plagiarism-free while maintaining the original meaning and quality. Use different sentence structures, vocabulary, and writing style. Ensure it reads naturally and can bypass AI detectors. Keep the same length and key information. Format as a well-structured article with proper paragraphs.",
+      "Transform the given article into 100% unique, plagiarism-free content that reads completely original while preserving all key information and meaning. ADVANCED REWRITING REQUIREMENTS: 1) COMPLETE RESTRUCTURING: Change sentence patterns, paragraph organization, and flow completely, 2) VOCABULARY ENHANCEMENT: Replace common words with sophisticated alternatives, 3) STYLE TRANSFORMATION: Adapt to the specified writing style (Professional/Casual/Academic/Creative/Technical), 4) READABILITY OPTIMIZATION: Improve sentence structure, add transitions, and enhance flow, 5) AI DETECTION BYPASS: Write naturally with varied sentence lengths and authentic voice, 6) VALUE ADDITION: Include additional insights, examples, or perspectives not in original, 7) STRUCTURE MAINTENANCE: Keep similar length and all essential information, 8) ENGAGEMENT BOOSTERS: Add rhetorical questions, compelling statements, or surprising facts. FORMAT: Well-structured paragraphs with proper spacing. ENSURE: 100% unique, human-like quality, and immediately usable without any editing. The rewritten content should be significantly better than the original.",
     form: [
       {
         label: "Original Article Content",
@@ -31,7 +31,7 @@ const templates: TEMPLATE[] = [
     category: "Blog",
     icon: "https://cdn-icons-png.flaticon.com/128/4905/4905454.png",
     slug: "blog-content-generation",
-    aiPrompt: "Generate a comprehensive, SEO-optimized blog post of exactly 1500-2000 words. MUST include: 1) Compelling introduction with hook (100-150 words), 2) 5-7 well-structured sections with H2/H3 headings, 3) Bullet points and numbered lists for readability, 4) Real examples and data points, 5) Internal linking suggestions, 6) Conclusion with clear call-to-action. Use conversational yet professional tone. Include LSI keywords naturally. Format with proper markdown (## for H2, ### for H3). Ensure content is 100% unique and plagiarism-free. NEVER leave sections empty or incomplete.",
+    aiPrompt: "Write a complete, rankable blog post on {topic} for {audience} in {tone} tone. This must be pure blog content that can be directly copied and pasted into Blogger, WordPress, or any blogging platform.\n\nCRITICAL: OUTPUT ONLY THE BLOG POST CONTENT\n\nBLOG POST REQUIREMENTS:\n- 2500-3000 words of actual blog content\n- SEO-optimized for ranking on Google\n- Engaging and valuable content that earns views\n- Money-making potential through affiliate links and ads\n- Mobile-friendly short paragraphs\n- Proper headings and subheadings\n- Actionable tips and real examples\n- Compelling introduction and conclusion\n\nSTRUCTURE:\n1. Engaging Headline\n2. Compelling Introduction (hook the reader)\n3. Main Body (2500-3000 words with proper structure)\n4. Actionable tips and real examples\n5. Natural conclusion (no call-to-action section)\n\nABSOLUTELY DO NOT INCLUDE:\n- \"Call to Action\" section\n- \"About the Author\" section\n- \"References\" section\n- Any metadata about keywords or SEO\n- Instructions about optimization\n- Technical details about writing\n- Analysis or commentary about the blog\n- \"Keyword Density:\" sections\n- \"Image Optimization:\" sections\n- \"Monetization Strategy:\" sections\n- Any text that isn't part of the actual blog post\n\nOUTPUT ONLY the pure blog post content that can be directly published and will rank well to earn views and money.",
     form: [
       {
         label: "Blog Topic",
@@ -67,8 +67,7 @@ const templates: TEMPLATE[] = [
     desc: "Generate catchy, SEO-optimized blog titles that drive clicks and rank higher on Google",
     category: "Blog",
     icon: "https://cdn-icons-png.flaticon.com/128/4186/4186534.png",
-    aiPrompt:
-      "Generate 5 compelling, SEO-friendly blog titles that will rank on Google and attract clicks. Each title should be under 60 characters, include the target keyword naturally, and evoke curiosity. Format as a numbered list with a brief explanation for why each title works. Consider search intent, current trends, and click-through rate optimization.",
+    aiPrompt: "Generate 10 catchy, SEO-optimized blog titles for the niche: {niche}. These titles should be ready to use and drive clicks.\n\nREQUIREMENTS:\n- Each title should be under 60 characters\n- Include numbers and power words\n- Create curiosity and urgency\n- Be SEO-friendly with keywords\n- Make people want to click\n\nOUTPUT FORMAT:\nJust list the 10 titles, one per line. No explanations or metadata.\n\nEXAMPLE:\n10 Ways to Boost Your Productivity Today\nThe Ultimate Guide to Digital Marketing\nWhy Most Startups Fail (And How to Succeed)",
     slug: "generate-blog-title",
     form: [
       {
@@ -99,7 +98,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/11497/11497847.png",
     slug: "blog-topic-idea",
     aiPrompt:
-      "Generate 10 viral-worthy blog topic ideas based on the niche. Each topic should have: high search potential, current relevance, engagement factor, and monetization potential. Format as numbered list with: 1) Catchy title, 2) Brief description of angle, 3) Target search intent, 4) Estimated traffic potential. Focus on topics that solve real problems and spark curiosity.",
+      "Generate 15 high-impact, trending blog topic ideas that will dominate search results and drive massive engagement. COMPREHENSIVE TOPIC ANALYSIS: For each topic provide: 1) VIRAL HEADLINE: Click-worthy, SEO-optimized title, 2) TREND ANALYSIS: Why this topic is trending now, 3) SEARCH INTENT: User intent and keyword opportunities, 4) TRAFFIC POTENTIAL: Estimated monthly search volume and difficulty, 5) CONTENT ANGLE: Unique perspective that stands out, 6) MONETIZATION: Revenue potential (ads, affiliate, products), 7) ENGAGEMENT FACTORS: Shareability, comment potential, 8) COMPETITIVE GAP: What competitors are missing. TOPIC CATEGORIES: Include how-to guides, listicles, case studies, opinion pieces, news reactions, evergreen content. FORMAT: Numbered list with detailed analysis for each. BONUS: Suggest 3 content cluster ideas around top topics. ENSURE: Topics are immediately actionable, trend-aware, and designed for maximum organic reach and audience growth.",
     form: [
       {
         label: "Your Blog Niche",
@@ -123,7 +122,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/4426/4426267.png",
     slug: "code-bug-detector",
     aiPrompt:
-      "Analyze the given code for bugs, errors, and issues. Identify: syntax errors, logic errors, performance issues, security vulnerabilities, and best practices violations. Provide: 1) List of issues found, 2) Root cause analysis, 3) Fixed code with corrections, 4) Prevention tips. Format clearly with sections for each issue.",
+      "Perform comprehensive code analysis to identify and fix all bugs, errors, and optimization opportunities. ADVANCED DEBUGGING ANALYSIS: 1) CRITICAL ISSUES: Syntax errors, runtime errors, null pointer exceptions, type mismatches, 2) LOGIC BUGS: Off-by-one errors, infinite loops, incorrect conditionals, race conditions, 3) PERFORMANCE OPTIMIZATION: Inefficient algorithms, memory leaks, redundant operations, slow data structures, 4) SECURITY VULNERABILITIES: SQL injection, XSS, authentication flaws, input validation, 5) CODE QUALITY: Best practices violations, code smell, maintainability issues, 6) ARCHITECTURE IMPROVEMENTS: Design patterns, separation of concerns, modularity. DELIVERABLES: 1) Detailed issue report with severity levels (Critical/High/Medium/Low), 2) Root cause analysis for each issue, 3) Complete corrected code with inline comments explaining fixes, 4) Performance benchmarks and optimization suggestions, 5) Security hardening recommendations, 6) Best practices implementation guide, 7) Prevention strategies for future development. FORMAT: Clear sections with code blocks, line numbers, and step-by-step fix instructions. ENSURE: Code is production-ready, optimized, and secure.",
     form: [
       {
         label: "Code to Debug",
@@ -153,7 +152,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/8488/8488751.png",
     slug: "explain-code",
     aiPrompt:
-      "Explain the given code in detail: overall purpose, step-by-step logic, key functions/methods, data flow, and best practices used. Identify any potential improvements or issues. Format explanation clearly with sections for overview, line-by-line explanation, and key concepts.",
+      "Provide comprehensive code explanation that transforms complex code into understandable concepts. DETAILED ANALYSIS REQUIREMENTS: 1) HIGH-LEVEL OVERVIEW: Purpose, functionality, and real-world applications, 2) ARCHITECTURE BREAKDOWN: System design, data flow, component relationships, 3) STEP-BY-STEP EXECUTION: Line-by-line explanation with execution flow, 4) KEY CONCEPTS: Programming principles, algorithms, design patterns used, 5) DATA STRUCTURES: Variables, objects, arrays, and their roles, 6) FUNCTIONS/METHODS: Purpose, parameters, return values, side effects, 7) BEST PRACTICES: Code quality, maintainability, scalability considerations, 8) POTENTIAL ISSUES: Edge cases, performance bottlenecks, security concerns, 9) OPTIMIZATION OPPORTUNITIES: Performance improvements, code refactoring suggestions, 10) LEARNING RESOURCES: Related concepts to study next. ADAPTIVE EXPLANATION: Tailor complexity to specified level (Beginner/Intermediate/Advanced). FORMAT: Clear sections with code examples, diagrams (text-based), and practical analogies. BONUS: Provide 3 alternative implementation approaches. ENSURE: Explanation transforms confusion into clarity and enables practical application.",
     form: [
       {
         label: "Code to Explain",
@@ -177,7 +176,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/6062/6062646.png",
     slug: "write-code",
     aiPrompt:
-      "Generate clean, efficient, and well-documented code based on the requirements. Include proper syntax, best practices, error handling, and comments. Provide the code in proper code blocks with syntax highlighting. Add brief explanation of the logic and any important considerations. Ensure the code is production-ready.",
+      "Generate production-ready, enterprise-grade code that meets professional standards. COMPREHENSIVE CODE REQUIREMENTS: 1) CLEAN ARCHITECTURE: Modular design, separation of concerns, scalable structure, 2) ROBUST ERROR HANDLING: Try-catch blocks, input validation, edge cases, graceful failures, 3) PERFORMANCE OPTIMIZATION: Efficient algorithms, memory management, caching strategies, 4) SECURITY BEST PRACTICES: Input sanitization, authentication checks, data protection, 5) COMPREHENSIVE DOCUMENTATION: Inline comments, function documentation, usage examples, 6) TESTING FRIENDLY: Testable functions, mockable dependencies, clear interfaces, 7) CODE STANDARDS: Consistent formatting, naming conventions, linting compliance, 8) DEPLOYMENT READY: Environment variables, configuration management, logging. DELIVERABLES: 1) Complete working code with proper syntax highlighting, 2) Detailed explanation of architecture and logic, 3) Usage instructions and examples, 4) Performance considerations and benchmarks, 5) Security recommendations, 6) Testing strategies, 7) Deployment guidelines. FORMAT: Professional code blocks with line numbers, clear sections, and practical examples. ENSURE: Code is immediately deployable, maintainable, and follows industry best practices.",
     form: [
       {
         label: "Code Requirements",
@@ -207,8 +206,7 @@ const templates: TEMPLATE[] = [
     category: "Marketing",
     icon: "https://cdn-icons-png.flaticon.com/128/3228/3228190.png",
     slug: "email-marketing-campaign",
-    aiPrompt:
-      "Generate a complete email marketing campaign with following EXACT structure: 1) 3 SUBJECT LINE OPTIONS with psychological triggers (curiosity, urgency, benefit-focused), 2) PREHEADER TEXT (40-80 characters), 3) EMAIL BODY (400-600 words) with: personal greeting, compelling hook, 2-3 key benefit paragraphs, social proof, scarcity/urgency element, clear CTA button text, professional signature, 4) FOLLOW-UP SEQUENCE (3 emails). Use persuasive copywriting techniques: storytelling, emotional triggers, benefit-driven language. Format with clear sections using ## headers. NEVER leave any section empty or incomplete.",
+    aiPrompt: "Write a REAL email marketing campaign that actually converts and makes sales. Think like a copywriter who gets paid $5,000 per email.\n\nCAMPAIGN REQUIREMENTS:\n1. **GENUINE VALUE**: Solve a real problem for the reader\n2. **PERSONAL VOICE**: Write like a human, not a corporation\n3. **STORYTELLING**: Use personal experiences or case studies\n4. **CLEAR OFFER**: What you're selling and why they need it\n5. **STRONG CTA**: Specific action with urgency\n\nEMAIL STRUCTURE:\n- **SUBJECT LINES**: 5 options that create curiosity without being spammy\n- **OPENING**: Personal greeting + hook that relates to their problem\n- **STORY**: Relatable experience or case study\n- **SOLUTION**: How your product/service solves the problem\n- **PROOF**: Testimonials, data, or results\n- **OFFER**: Clear pricing and what they get\n- **URGENCY**: Why they should act now\n- **CTA**: Specific next step\n- **P.S.**: Bonus or final reminder\n\nFOLLOW-UP SEQUENCE:\n- Email 2 (24hrs): Address objections + bonus\n- Email 3 (48hrs): Urgency + scarcity\n- Email 4 (72hrs): Value content + soft sell\n- Email 5 (7days): Last chance\n\nCOPYWRITING STYLE:\n- Conversational (like talking to a friend)\n- Short sentences and paragraphs\n- Use \"you\" and \"your\" frequently\n- Include specific numbers and results\n- Add personality and opinions\n\nQUALITY CHECK: Would you open this email? Would you click? Would you buy? Does it feel authentic or salesy?",
     form: [
       {
         label: "Campaign Goal",
@@ -276,7 +274,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/12596/12596700.png",
     slug: "english-grammer-checker",
     aiPrompt:
-      "Correct all grammar, spelling, and punctuation errors in the given text. Improve sentence structure, word choice, and overall clarity while maintaining the original meaning. Ensure professional, error-free writing. Format as clean, corrected text ready to use.",
+      "Transform your text into polished, professional writing with comprehensive grammar and style improvements. ADVANCED WRITING ENHANCEMENT: 1) GRAMMAR CORRECTION: Fix all grammatical errors, tense consistency, subject-verb agreement, 2) SPELLING & PUNCTUATION: Correct spelling mistakes, punctuation placement, capitalization, 3) SENTENCE STRUCTURE: Improve sentence flow, eliminate run-ons, fix fragments, enhance readability, 4) WORD CHOICE OPTIMIZATION: Replace weak words with powerful alternatives, eliminate redundancy, improve vocabulary, 5) CLARITY & CONCISION: Remove jargon, simplify complex sentences, improve logical flow, 6) STYLE CONSISTENCY: Ensure consistent tone, formatting, and writing style, 7) PROFESSIONAL POLISH: Add proper transitions, improve coherence, enhance impact. DELIVERABLES: 1) Fully corrected text ready for immediate use, 2) Detailed correction report showing all changes made, 3) Style improvement suggestions, 4) Readability score analysis, 5) Writing tips for future improvement. FORMAT: Clean, corrected text with optional track changes view. BONUS: Provide 3 alternative phrasings for improved impact. ENSURE: Text is publication-ready, professional, and error-free while maintaining original meaning and voice.",
     form: [
       {
         label: "Your Text",
@@ -299,8 +297,7 @@ const templates: TEMPLATE[] = [
     category: "Social Media",
     icon: "https://cdn-icons-png.flaticon.com/128/1029/1029183.png",
     slug: "instagram-post-idea-generator",
-    aiPrompt:
-      "Generate 10 viral Instagram content ideas including: 5 post ideas and 5 Reel ideas. For each idea include: content concept, hook description, trending audio suggestions (for Reels), optimal posting time, engagement strategy, and hashtag strategy. Focus on current trends and audience preferences in the niche.",
+    aiPrompt: "Generate 15 REAL Instagram content ideas that actually go viral and make money. Think like a creator who gets millions of views.\n\nVIRAL CONTENT REQUIREMENTS:\n1. **GENUINE VALUE**: Teach something people actually want to learn\n2. **STORYTELLING**: Personal experiences, failures, successes\n3. **ENTERTAINMENT**: Funny, shocking, or surprisingly useful\n4. **RELATABLE**: Problems people actually face\n5. **SHAREABLE**: Content people save and send to friends\n\nCONTENT TYPES THAT WORK:\n- **PROBLEM-SOLVING**: Fix common issues in your niche\n- **BEHIND-THE-SCENES**: Real business/creation process\n- **TRANSFORMATIONS**: Before/after with real results\n- **STORYTIME**: Personal journey with lessons learned\n- **TUTORIALS**: Step-by-step guides people can follow\n- **REACTIONS**: Respond to trends/news in your niche\n- **COLLABS**: Partner with other creators\n- **Q&A**: Answer real questions from your audience\n\nFOR EACH IDEA INCLUDE:\n- **CONCEPT**: What the content is about\n- **HOOK**: First 3 seconds to stop scrolling\n- **SCRIPT**: Key talking points or caption\n- **VISUAL**: How to shoot it (phone, lighting, angles)\n- **CAPTION**: Engaging caption with CTA\n- **HASHTAGS**: 10-15 relevant hashtags\n- **POSTING**: Best time to post\n- **MONETIZATION**: How it makes money\n\nQUALITY CHECK: Would you watch this? Would you share it? Does it provide real value?",
     form: [
       {
         label: "Your Niche/Industry",
@@ -330,7 +327,7 @@ const templates: TEMPLATE[] = [
     icon: "https://cdn-icons-png.flaticon.com/128/7045/7045432.png",
     slug: "instagram-hash-tag-generator",
     aiPrompt:
-      "Generate 20 strategic Instagram hashtags organized by: 5 high-volume (1M+ posts), 10 medium-volume (100K-1M posts), 5 niche/low-volume (under 100K posts). Include trending, evergreen, and location-specific tags. Focus on discoverability and engagement. Format as comma-separated list grouped by volume.",
+      "Generate 30 strategically-optimized Instagram hashtags that maximize reach, engagement, and discoverability. ADVANCED HASHTAG STRATEGY: 1) HIGH-VOLUME (5 tags): 1M+ posts for broad reach and trending topics, 2) MEDIUM-VOLUME (10 tags): 100K-1M posts for targeted reach and engagement, 3) NICHE-SPECIFIC (10 tags): 10K-100K posts for qualified audience, 4) MICRO-NICHE (5 tags): Under 10K posts for hyper-targeted engagement, 5) BRAND/COMMUNITY TAGS (3-5): Custom hashtags for brand building, 6) TRENDING TAGS (2-3): Currently viral in your niche, 7) LOCATION TAGS (2-3): Geo-targeted for local discovery, 8) EMOTIONAL/PSYCHOLOGICAL TAGS: Tags that evoke feelings and actions. HASHTAG ANALYSIS: For each category include: engagement potential, competition level, audience type, best use case. STRATEGY TIPS: Hashtag placement (caption vs first comment), rotation schedule, performance tracking. FORMAT: Organized by category with engagement scores and usage recommendations. BONUS: Provide hashtag performance tracking template and trending hashtag alerts. ENSURE: Hashtag set is optimized for Instagram's algorithm and designed for maximum organic reach.",
     form: [
       {
         label: "Post Content/Keywords",

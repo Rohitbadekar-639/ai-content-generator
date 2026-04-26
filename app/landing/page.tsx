@@ -246,7 +246,7 @@ export default function LandingPage() {
             <h3 className="text-2xl font-bold mb-6">The Results Speak for Themselves</h3>
             <div className="grid md:grid-cols-4 gap-8">
               <div>
-                <div className="text-3xl font-bold mb-2">1,000+</div>
+                <div className="text-3xl font-bold mb-2">1000+</div>
                 <div className="text-blue-100">Happy Users</div>
               </div>
               <div>

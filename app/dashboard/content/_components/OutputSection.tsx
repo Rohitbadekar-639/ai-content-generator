@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Sparkles, FileText, Download, Share2, RefreshCw } from "lucide-react";
+import { Copy, Check, Sparkles, FileText, Download, Share2 } from "lucide-react";
 import ContentRenderer from "@/components/ui/content-renderer";
 
 interface PROPS {
@@ -78,8 +78,8 @@ function OutputSection({ aiOutput }: PROPS) {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">AI Generated Result</h2>
-              <p className="text-blue-100 text-sm">Powered by Groq AI</p>
+              <h2 className="text-xl font-semibold text-white">Ready-to-Use Content</h2>
+              <p className="text-blue-100 text-sm">Professional quality • Copy & paste directly</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -141,6 +141,35 @@ function OutputSection({ aiOutput }: PROPS) {
         </div>
       </div>
 
+      {/* Content Stats */}
+      {aiOutput && (
+        <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4">
+              <span className="text-gray-600">
+                <span className="font-medium text-gray-900">{aiOutput.split(/\s+/).filter(word => word.length > 0).length}</span> words
+              </span>
+              <span className="text-gray-600">
+                <span className="font-medium text-gray-900">{aiOutput.length}</span> characters
+              </span>
+              <span className="text-gray-600">
+                <span className="font-medium text-gray-900">{aiOutput.split(/\n\n/).filter(para => para.trim().length > 0).length}</span> paragraphs
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                <Check className="w-3 h-3" />
+                Ready to use
+              </div>
+              <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                <Sparkles className="w-3 h-3" />
+                Professional quality
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content Area */}
       <div className="p-4 min-h-[300px] bg-white">
         {aiOutput ? (
@@ -151,13 +180,23 @@ function OutputSection({ aiOutput }: PROPS) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full min-h-[250px] text-center">
-            <div className="p-3 bg-gray-100 rounded-full mb-3">
-              <FileText className="w-6 h-6 text-gray-400" />
+            <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3">
+              <Sparkles className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="text-base font-medium text-gray-600 mb-2">Ready to generate content</h3>
-            <p className="text-gray-400 text-sm max-w-md">
-              Fill in the form and click "Generate Content" to see your AI-powered results here
+            <h3 className="text-base font-medium text-gray-900 mb-2">Ready to create amazing content</h3>
+            <p className="text-gray-600 text-sm max-w-md mb-4">
+              Generate professional, ready-to-use content that will impress your audience
             </p>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Check className="w-3 h-3" />
+              <span>Publication-ready quality</span>
+              <span>•</span>
+              <Check className="w-3 h-3" />
+              <span>No editing required</span>
+              <span>•</span>
+              <Check className="w-3 h-3" />
+              <span>Instant results</span>
+            </div>
           </div>
         )}
       </div>
@@ -176,16 +215,6 @@ function OutputSection({ aiOutput }: PROPS) {
                 <span>{aiOutput.split(' ').length} words</span>
                 <span>{aiOutput.split('\n').length} lines</span>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                size="sm"
-                variant="outline"
-                className="text-xs"
-              >
-                <RefreshCw className="w-3 h-3 mr-1" />
-                Regenerate
-              </Button>
             </div>
           </div>
         </div>
