@@ -167,7 +167,31 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
       rzp.open();
 
     } catch (error) {
-      alert("Payment failed: " + (error instanceof Error ? error.message : "Unknown error"));
+      console.error('💥 Payment error:', error);
+      
+      let errorMessage = "Payment failed. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('network')) {
+          errorMessage = "Network error. Please check your internet connection and try again.";
+        } else if (error.message.includes('Razorpay')) {
+          errorMessage = "Payment service error. Please try again in a few minutes.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      // Show user-friendly error
+      alert(errorMessage);
+      
+      // Log detailed error for debugging
+      console.error('Payment error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+        timestamp: new Date().toISOString()
+      });
+      
       onError?.(error);
       setIsLoading(false);
     }

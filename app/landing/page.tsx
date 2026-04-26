@@ -191,7 +191,7 @@ export default function LandingPage() {
             )}
           </div>
           <p className="text-sm text-blue-100 mt-4">
-            No credit card required • 1,00,000 free words every month
+            No credit card required • 10,000 free words credits per user
           </p>
         </div>
       </section>
@@ -237,7 +237,7 @@ export default function LandingPage() {
               <p className="text-gray-600 mb-4">
                 Create content in 25+ languages and reach audiences worldwide. Perfect for businesses expanding internationally or creators targeting diverse markets.
               </p>
-              <div className="text-sm font-medium text-purple-600">🌍 Reach 5B+ global users</div>
+              <div className="text-sm font-medium text-purple-600">🌍 Reach 1B+ global users</div>
             </div>
           </div>
 
@@ -246,11 +246,11 @@ export default function LandingPage() {
             <h3 className="text-2xl font-bold mb-6">The Results Speak for Themselves</h3>
             <div className="grid md:grid-cols-4 gap-8">
               <div>
-                <div className="text-3xl font-bold mb-2">10,000+</div>
+                <div className="text-3xl font-bold mb-2">1,000+</div>
                 <div className="text-blue-100">Happy Users</div>
               </div>
               <div>
-                <div className="text-3xl font-bold mb-2">5M+</div>
+                <div className="text-3xl font-bold mb-2">1M+</div>
                 <div className="text-blue-100">Words Generated</div>
               </div>
               <div>
@@ -273,7 +273,7 @@ export default function LandingPage() {
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
               Generate Professional Content in Seconds with AI
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl">
+            <p className="text-xl text-gray-600 mb-8">
               Create high-quality blog posts, social media content, marketing copy, and more with our advanced AI technology. 
               Start free, then get lifetime access for just ₹99.
             </p>

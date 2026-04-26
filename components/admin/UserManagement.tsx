@@ -84,6 +84,36 @@ export default function UserManagement() {
     }
   };
 
+  const syncUsersFromClerk = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/sync-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Users synced from Clerk:', result.stats);
+        alert(`Successfully synced ${result.stats.syncedUsers} users from Clerk! Created ${result.stats.newUsersCreated} new users.`);
+        
+        // Refresh users after sync
+        await fetchUsers();
+      } else {
+        console.error('Failed to sync users:', result.error);
+        alert('Failed to sync users from Clerk. Please check console for details.');
+      }
+    } catch (error) {
+      console.error('Error syncing users:', error);
+      alert('Error syncing users from Clerk. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleUserUpdate = async (userEmail: string, updates: Partial<User>) => {
     try {
       const response = await fetch('/api/admin/users', {
@@ -229,6 +259,10 @@ export default function UserManagement() {
           <div className="flex justify-between items-center">
             <CardTitle>User Management</CardTitle>
             <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={syncUsersFromClerk}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Sync from Clerk
+              </Button>
               <Button variant="outline" size="sm">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add User
