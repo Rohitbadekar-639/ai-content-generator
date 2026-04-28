@@ -8,15 +8,54 @@ const ADMIN_PRICE = 1; // ₹1 for admin testing
 const ADMIN_AMOUNT_PAISE = 100; // ₹1 in paise
 
 export async function POST(request: Request) {
+  // Add CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { status: 200, headers: corsHeaders });
+  }
+  
+  let userId: string | undefined;
+  let userEmail: string | undefined;
+  
   try {
-    const { userId, userEmail } = await request.json();
+    const requestData = await request.json();
+    userId = requestData.userId;
+    userEmail = requestData.userEmail;
+    const currency = requestData.currency || 'INR';
+    const paymentMethod = requestData.paymentMethod || 'card';
 
     // Check if user is admin
     const isAdmin = userEmail === 'rohitbadekar555@gmail.com';
     
-    // Set pricing based on user type
-    const price = isAdmin ? ADMIN_PRICE : FIXED_PRICE;
-    const amount = isAdmin ? ADMIN_AMOUNT_PAISE : FIXED_AMOUNT_PAISE;
+    // Set pricing based on user type and currency
+    let price: number;
+    let amount: number;
+    
+    if (isAdmin) {
+      price = ADMIN_PRICE;
+      amount = ADMIN_AMOUNT_PAISE;
+    } else {
+      // Get localized price based on currency
+      if (currency === 'USD') {
+        price = 1.99; // $1.99
+        amount = 199; // $1.99 in paise (approx)
+      } else if (currency === 'EUR') {
+        price = 1.79; // €1.79
+        amount = 179; // €1.79 in paise (approx)
+      } else if (currency === 'GBP') {
+        price = 1.49; // £1.49
+        amount = 149; // £1.49 in paise (approx)
+      } else {
+        price = FIXED_PRICE; // ₹99 for INR
+        amount = FIXED_AMOUNT_PAISE;
+      }
+    }
 
     // Validate required fields
     if (!userId || !userEmail) {
@@ -41,16 +80,18 @@ export async function POST(request: Request) {
     });
 
     
-    // CREATE ORDER WITH DYNAMIC AMOUNT BASED ON USER TYPE
+    // CREATE ORDER WITH DYNAMIC AMOUNT AND CURRENCY
     const options: any = {
-      amount: amount, // Dynamic: ₹1 for admin, ₹99 for users
-      currency: "INR",
+      amount: amount, // Dynamic based on currency and user type
+      currency: currency, // Support multiple currencies
       receipt: `rc_${Date.now().toString(36)}`,
       notes: {
         user_id: userId,
         user_email: userEmail,
         plan: "Professional",
         price: price,
+        currency: currency,
+        payment_method: paymentMethod,
         is_admin: isAdmin,
       },
     };
@@ -88,7 +129,9 @@ export async function POST(request: Request) {
         amount: order.amount,
         currency: order.currency,
         receipt: order.receipt,
-        display_amount: price, // Show ₹1 for admin, ₹99 for users
+        display_amount: price,
+        display_currency: currency,
+        payment_method: paymentMethod,
         plan_name: "Professional",
         plan_features: isAdmin ? [
           "Admin testing mode",
@@ -98,10 +141,11 @@ export async function POST(request: Request) {
           "1,00,000 words credits",
           "50+ templates", 
           "Lifetime access",
-          "Priority support"
+          "Priority support",
+          `Payment in ${currency}`
         ]
       },
-    });
+    }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('=== PAYMENT ATTEMPT ERROR ===');
@@ -109,13 +153,30 @@ export async function POST(request: Request) {
     console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
     console.error('Razorpay Key ID exists:', !!process.env.RAZORPAY_KEY_ID);
     console.error('Razorpay Secret exists:', !!process.env.RAZORPAY_KEY_SECRET);
+    console.error('User Email:', userEmail);
+    console.error('Timestamp:', new Date().toISOString());
+    
+    // Detailed error logging for debugging
+    const errorDetails = {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      userEmail: userEmail,
+      userId: userId,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID?.substring(0, 10) + '...'
+    };
+    
+    console.error('Detailed error info:', errorDetails);
     
     return NextResponse.json(
       { 
         error: "Failed to create payment order",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
+        userFriendlyMessage: "Payment initialization failed. Please try again or contact support.",
+        errorCode: "PAYMENT_ORDER_FAILED"
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

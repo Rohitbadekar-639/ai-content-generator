@@ -4,8 +4,27 @@ import { UserSubscription } from "@/utils/schema";
 import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
+  // Add CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { status: 200, headers: corsHeaders });
+  }
+  
+  let email: string | undefined;
+  let plan: string | undefined;
+  let paymentId: string | undefined;
+  
   try {
-    const { email, plan, paymentId } = await request.json();
+    const requestData = await request.json();
+    email = requestData.email;
+    plan = requestData.plan;
+    paymentId = requestData.paymentId;
     
     console.log('=== ACTIVATE SUBSCRIPTION REQUEST ===');
     console.log('Email:', email);
@@ -63,19 +82,24 @@ export async function POST(request: Request) {
         message: 'Subscription activated successfully',
         plan: plan
       },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
 
   } catch (error) {
     console.error('=== ERROR ACTIVATING SUBSCRIPTION ===');
     console.error('Error:', error);
+    console.error('Email:', email);
+    console.error('Plan:', plan);
+    console.error('Timestamp:', new Date().toISOString());
     
     return NextResponse.json(
       { 
         error: 'Failed to activate subscription',
-        details: String(error)
+        details: String(error),
+        userFriendlyMessage: 'Subscription activation failed. Please contact support.',
+        errorCode: 'SUBSCRIPTION_ACTIVATION_FAILED'
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

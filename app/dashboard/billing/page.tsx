@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import SecurePayment from "@/components/payment/SecurePayment";
+import InternationalPayment from "@/components/payment/InternationalPayment";
 import { Loader2Icon, CheckCircle2, Star, Zap, RefreshCw, Crown } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
@@ -176,12 +176,17 @@ function Billing() {
                 {isAdmin ? 'Test Plan' : 'Premium Plan'}
               </h3>
               <div className="text-4xl font-bold mb-2">
-                ₹{displayPrice}
+                {isAdmin ? '₹1' : 'Starts at $1.99'}
                 <span className="text-lg font-normal"> {isAdmin ? 'test' : 'once'}</span>
               </div>
               <p className="text-blue-100">
                 {formattedWordCredits} words credits
               </p>
+              {!isAdmin && (
+                <p className="text-sm text-blue-200 mt-2">
+                  International pricing available • Multiple currencies supported
+                </p>
+              )}
             </div>
 
             <ul className="space-y-3 mb-8">
@@ -215,7 +220,7 @@ function Billing() {
                     : 'One-time payment for lifetime access'
                   }
                 </p>
-                <SecurePayment
+                <InternationalPayment
                   onSuccess={async () => {
                     // Refresh subscription status after successful payment
                     if (user?.primaryEmailAddress?.emailAddress) {
@@ -239,7 +244,7 @@ function Billing() {
                     // Force page refresh to show updated UI
                     window.location.reload();
                   }}
-                  onError={(error) => {
+                  onError={(error: any) => {
                     // Payment error handled
                     console.error('Payment error:', error);
                   }}

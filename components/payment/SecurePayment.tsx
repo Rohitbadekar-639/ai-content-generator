@@ -170,26 +170,43 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
       console.error('💥 Payment error:', error);
       
       let errorMessage = "Payment failed. Please try again.";
+      let shouldRetry = false;
       
       if (error instanceof Error) {
-        if (error.message.includes('network')) {
+        if (error.message.includes('network') || error.message.includes('fetch')) {
           errorMessage = "Network error. Please check your internet connection and try again.";
-        } else if (error.message.includes('Razorpay')) {
-          errorMessage = "Payment service error. Please try again in a few minutes.";
+          shouldRetry = true;
+        } else if (error.message.includes('Razorpay') || error.message.includes('order creation')) {
+          errorMessage = "Payment service temporarily unavailable. Please try again in a few minutes.";
+          shouldRetry = true;
+        } else if (error.message.includes('authentication') || error.message.includes('unauthorized')) {
+          errorMessage = "Authentication error. Please login again and try.";
+        } else if (error.message.includes('amount') || error.message.includes('security')) {
+          errorMessage = "Payment validation failed. Please refresh the page and try again.";
         } else {
           errorMessage = error.message;
         }
       }
       
-      // Show user-friendly error
-      alert(errorMessage);
+      // Show user-friendly error with retry option
+      if (shouldRetry) {
+        const retry = confirm(`${errorMessage}\n\nWould you like to try again?`);
+        if (retry) {
+          handlePayment(); // Retry payment
+          return;
+        }
+      } else {
+        alert(errorMessage);
+      }
       
       // Log detailed error for debugging
       console.error('Payment error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack trace',
         userEmail: user?.primaryEmailAddress?.emailAddress,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        isOnline: navigator.onLine
       });
       
       onError?.(error);
