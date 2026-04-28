@@ -71,7 +71,9 @@ export default function LandingPage() {
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
               <a href="#templates" className="text-gray-600 hover:text-gray-900 transition-colors">Templates</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
-              <a href="#admin" className="text-gray-600 hover:text-gray-900 transition-colors">Admin</a>
+              {user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com' && (
+                <a href="#admin" className="text-gray-600 hover:text-gray-900 transition-colors">Admin</a>
+              )}
             </nav>
 
             {/* CTA Buttons */}
@@ -120,7 +122,9 @@ export default function LandingPage() {
               <a href="#features" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Features</a>
               <a href="#templates" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Templates</a>
               <a href="#pricing" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Pricing</a>
-              <a href="#admin" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Admin</a>
+              {user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com' && (
+                <a href="#admin" className="block px-4 py-2 text-gray-600 hover:text-gray-900">Admin</a>
+              )}
               <div className="pt-4 space-y-2">
                 {isSignedIn ? (
                   <>
@@ -357,22 +361,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Admin Access Section */}
-      <section id="admin" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Admin Access
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Access the admin panel to manage users, view analytics, and control your SAAS application
-          </p>
-          <Link href="/admin">
-            <Button size="lg" variant="outline" className="bg-blue border-white text-white hover:bg-white hover:text-gray-900 font-semibold transition-all duration-200">
-              Go to Admin Panel
-            </Button>
-          </Link>
-        </div>
-      </section>
+      {/* Admin Access Section - Admin Only */}
+      {user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com' && (
+        <section id="admin" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900">
+          <div className="max-w-7xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Admin Access
+            </h2>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              Access the admin panel to manage users, view analytics, and control your SAAS application
+            </p>
+            <Link href="/admin">
+              <Button size="lg" variant="outline" className="bg-blue border-white text-white hover:bg-white hover:text-gray-900 font-semibold transition-all duration-200">
+                Go to Admin Panel
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
