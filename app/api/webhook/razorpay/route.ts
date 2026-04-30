@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       console.log('Notes:', notes);
 
       // Only process successful payments of valid amounts
-      const validAmounts = [9900, 100, 199, 179, 149]; // ₹99, ₹1, $1.99, €1.79, £1.49
+      const validAmounts = [9900, 900, 100]; // ₹99 (India), $9 (International), ₹1 (Admin)
       if (status === 'captured' && validAmounts.includes(amount)) {
         // Check if user already has a subscription
         const existingSubscription = await db
@@ -96,7 +96,8 @@ export async function POST(request: Request) {
           .where(eq(UserSubscription.email, email));
 
         if (existingSubscription && existingSubscription.length > 0) {
-          // Update existing subscription
+          // Update existing subscription and add credits
+          const currentCredits = existingSubscription[0].credits || 0;
           await db
             .update(UserSubscription)
             .set({
@@ -104,11 +105,12 @@ export async function POST(request: Request) {
               plan: "Professional",
               paymentId: paymentId,
               joinDate: new Date().toISOString(),
+              credits: currentCredits + 1000000, // Add 1M credits
             })
             .where(eq(UserSubscription.email, email));
           
         } else {
-          // Create new subscription
+          // Create new subscription with 1M credits
           await db.insert(UserSubscription).values({
             email: email,
             userName: email.split('@')[0],
@@ -116,6 +118,7 @@ export async function POST(request: Request) {
             plan: "Professional",
             paymentId: paymentId,
             joinDate: new Date().toISOString(),
+            credits: 1000000, // 1M credits for premium users
           });
           
         }

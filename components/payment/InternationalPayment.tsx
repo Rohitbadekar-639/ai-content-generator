@@ -15,9 +15,10 @@ import {
 interface InternationalPaymentProps {
   onSuccess?: () => void;
   onError?: (error: any) => void;
+  pricingInfo?: any;
 }
 
-export default function InternationalPayment({ onSuccess, onError }: InternationalPaymentProps) {
+export default function InternationalPayment({ onSuccess, onError, pricingInfo }: InternationalPaymentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<string>('INR');
   const [selectedMethod, setSelectedMethod] = useState<string>('card');
@@ -27,30 +28,25 @@ export default function InternationalPayment({ onSuccess, onError }: Internation
   // Check if user is admin
   const isAdmin = user?.primaryEmailAddress?.emailAddress === 'rohitbadekar555@gmail.com';
   
+  // Use pricing info from props or fallback to default
+  const currency = pricingInfo?.currency || 'INR';
+  const localPrice = pricingInfo?.price || 99;
+  const originalPrice = pricingInfo?.originalPrice || 399;
+  const displayPrice = pricingInfo?.displayPrice || '₹99';
+  const displayOriginalPrice = pricingInfo?.displayOriginalPrice || '₹399';
+  const isIndia = pricingInfo?.isIndia !== false; // Default to true if undefined
+  
+  useEffect(() => {
+    setSelectedCurrency(currency);
+  }, [currency]);
+  
   // Get localized pricing
-  const basePrice = PAYMENT_CONFIG.razorpay.plans.professional.INR;
-  const localizedPrice = isAdmin ? 1 : getLocalizedPrice(basePrice, selectedCurrency);
-  const wordCredits = isAdmin ? 10000 : 100000;
+  const localizedPrice = isAdmin ? 1 : localPrice;
+  const wordCredits = isAdmin ? 10000 : 1000000; // 1M credits for premium
+  const formattedWordCredits = isAdmin ? "10000" : "1000000"; // Simple string to avoid hydration
   
   // Available payment methods for selected currency
   const availableMethods = getAvailablePaymentMethods(selectedCurrency);
-  
-  // Auto-detect user's currency
-  useEffect(() => {
-    const detectCurrency = async () => {
-      const currency = await getCurrencyByLocation();
-      setSelectedCurrency(currency);
-      
-      // Set default payment method based on currency
-      if (currency === 'INR') {
-        setSelectedMethod('upi'); // UPI is popular in India
-      } else {
-        setSelectedMethod('card'); // Card for international
-      }
-    };
-    
-    detectCurrency();
-  }, []);
   
   // Load Razorpay
   const loadRazorpay = (): Promise<any> => {
@@ -373,7 +369,7 @@ export default function InternationalPayment({ onSuccess, onError }: Internation
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-green-400" />
-          <span>{wordCredits.toLocaleString()} words credits included</span>
+          <span>{formattedWordCredits} words credits included</span>
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="w-3 h-3 text-green-400" />

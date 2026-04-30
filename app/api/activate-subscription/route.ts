@@ -49,7 +49,8 @@ export async function POST(request: Request) {
 
     if (existingSubscription && existingSubscription.length > 0) {
       console.log('📝 Updating existing subscription');
-      // Update existing subscription
+      // Update existing subscription and add credits
+      const currentCredits = existingSubscription[0].credits || 0;
       await db
         .update(UserSubscription)
         .set({
@@ -57,12 +58,13 @@ export async function POST(request: Request) {
           plan: plan,
           paymentId: paymentId,
           joinDate: new Date().toISOString(),
+          credits: currentCredits + 1000000, // Add 1M credits
         })
         .where(eq(UserSubscription.email, email));
       
     } else {
       console.log('📝 Creating new subscription');
-      // Create new subscription
+      // Create new subscription with 1M credits
       await db.insert(UserSubscription).values({
         email: email,
         userName: email.split('@')[0], // Extract username from email
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
         plan: plan,
         paymentId: paymentId,
         joinDate: new Date().toISOString(),
+        credits: 1000000, // 1M credits for premium users
       });
       
     }
@@ -79,8 +82,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Subscription activated successfully',
-        plan: plan
+        message: '1,000,000 credits added successfully',
+        plan: plan,
+        creditsAdded: 1000000
       },
       { status: 200, headers: corsHeaders }
     );

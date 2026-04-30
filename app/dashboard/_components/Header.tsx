@@ -1,5 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
-import { Search, Settings } from "lucide-react";
+import { Search, Settings, Crown } from "lucide-react";
 import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -84,9 +84,13 @@ function Header() {
         
         {/* Premium Button - Only for non-admin users */}
         {!isAdmin && (
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md">
-            🔥 Get Premium for ₹99
-          </div>
+          <button 
+            onClick={() => window.location.href = '/dashboard/billing'}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+          >
+            <Crown className="w-4 h-4" />
+            Get Premium for ₹99
+          </button>
         )}
         
         <UserButton />

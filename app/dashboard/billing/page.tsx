@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import InternationalPayment from "@/components/payment/InternationalPayment";
+import SimplePayment from "@/components/payment/SimplePayment";
+import { getPricingInfo } from "@/lib/payment-config";
 import { Loader2Icon, CheckCircle2, Star, Zap, RefreshCw, Crown } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
@@ -12,6 +13,7 @@ import { useContext } from "react";
 
 function Billing() {
   const [loading, setLoading] = useState(false);
+  const [pricingInfo, setPricingInfo] = useState<any>(null);
   const { user } = useUser();
   const { setUserSubscription } = useContext(UserSubscriptionContext);
   const { userSubscription } = useContext(UserSubscriptionContext);
@@ -21,12 +23,36 @@ function Billing() {
   const { totalUsage, setTotalUsage } = useContext(TotalUsageContext);
   const { setUpdateCreditUsage } = useContext(UpdateCreditUsageContext);
   const { setLoading: setGlobalLoading } = useLoading();
+
+  // Fetch pricing information based on geolocation
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const pricing = await getPricingInfo();
+        setPricingInfo(pricing);
+      } catch (error) {
+        console.error('Error fetching pricing:', error);
+        // Fallback to Indian pricing
+        setPricingInfo({
+          currency: 'INR',
+          price: 99,
+          originalPrice: 399,
+          symbol: '₹',
+          displayPrice: '₹99',
+          displayOriginalPrice: '₹399',
+          isIndia: true
+        });
+      }
+    };
+    
+    fetchPricing();
+  }, []);
   
   // For admin, show test pricing. For users, show real pricing
   const adminPrice = 1;
-  const userPrice = 99;
+  const userPrice = pricingInfo?.price || 99;
   const displayPrice = isAdmin ? adminPrice : userPrice;
-  const wordCredits = isAdmin ? 10000 : 100000;
+  const wordCredits = isAdmin ? 10000 : 1000000;
 
   // Admin reset credits function
   const resetCredits = async () => {
@@ -61,8 +87,8 @@ function Billing() {
     }
   };
   
-  // Format numbers consistently to avoid hydration mismatch
-  const formattedWordCredits = wordCredits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  // Use simple, deterministic formatting to avoid hydration mismatch
+  const formattedWordCredits = "1000000"; // Simple number without commas to ensure server/client consistency
 
   // Refresh subscription status
   useEffect(() => {
@@ -176,15 +202,29 @@ function Billing() {
                 {isAdmin ? 'Test Plan' : 'Premium Plan'}
               </h3>
               <div className="text-4xl font-bold mb-2">
-                {isAdmin ? '₹1' : 'Starts at $1.99'}
-                <span className="text-lg font-normal"> {isAdmin ? 'test' : 'once'}</span>
+                {isAdmin ? (
+                  <>
+                    ₹1<span className="text-lg font-normal"> test</span>
+                  </>
+                ) : (
+                  <>
+                    {pricingInfo?.displayPrice || '₹99'}
+                    <span className="text-lg font-normal"> once</span>
+                  </>
+                )}
               </div>
+              {!isAdmin && pricingInfo && (
+                <div className="text-lg text-gray-300 mb-2">
+                  <span className="line-through">{pricingInfo.displayOriginalPrice}</span>
+                  <span className="ml-2 text-green-400 font-semibold">Launch Special</span>
+                </div>
+              )}
               <p className="text-blue-100">
                 {formattedWordCredits} words credits
               </p>
               {!isAdmin && (
                 <p className="text-sm text-blue-200 mt-2">
-                  International pricing available • Multiple currencies supported
+                  {pricingInfo?.isIndia ? 'Indian pricing • UPI, Cards, Net Banking' : 'International pricing • Credit/Debit Cards'}
                 </p>
               )}
             </div>
@@ -196,7 +236,7 @@ function Billing() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white">All 50+ templates</span>
+                <span className="text-white">20+ templates</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
@@ -204,7 +244,7 @@ function Billing() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white">Lifetime access</span>
+                <span className="text-white">Credits never expire</span>
               </li>
             </ul>
             {userSubscription?.active === true && userSubscription?.plan === "Professional" ? (
@@ -217,10 +257,11 @@ function Billing() {
                 <p className="text-sm text-gray-300 mb-4">
                   {isAdmin 
                     ? 'Test payment for admin (₹1)' 
-                    : 'One-time payment for lifetime access'
+                    : `One-time payment for 1,000,000 credits (${pricingInfo?.displayPrice || '₹99'})`
                   }
                 </p>
-                <InternationalPayment
+                <SimplePayment
+                  pricingInfo={pricingInfo}
                   onSuccess={async () => {
                     // Refresh subscription status after successful payment
                     if (user?.primaryEmailAddress?.emailAddress) {

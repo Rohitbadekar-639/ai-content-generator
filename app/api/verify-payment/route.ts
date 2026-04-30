@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // SECURITY CHECK: Verify expected amount is either ₹1 (100 paise for admin) or ₹99 (9900 paise for users)
-    if (expected_amount !== 9900 && expected_amount !== 100) {
+    // SECURITY CHECK: Verify expected amount is either ₹1 (100 paise for admin), ₹99 (9900 paise for Indian users), or $9 (900 cents for international users)
+    if (expected_amount !== 9900 && expected_amount !== 900 && expected_amount !== 100) {
       return NextResponse.json(
         { error: 'Invalid payment amount - security violation' },
         { status: 400 }

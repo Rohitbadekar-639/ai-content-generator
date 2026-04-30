@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import Razorpay from "razorpay";
+import { db } from "@/utils/db";
+import { UserSubscription } from "@/utils/schema";
+import { eq } from "drizzle-orm";
+import { PAYMENT_CONFIG, getPricingInfo } from "@/lib/payment-config";
 
 // FIXED PRICING - Users cannot modify this
-const FIXED_PRICE = 99; // ₹99 fixed for users
-const FIXED_AMOUNT_PAISE = 9900; // ₹99 in paise (Razorpay uses paise)
+const INDIA_PRICE = 99; // ₹99 for Indian users
+const INDIA_AMOUNT_PAISE = 9900; // ₹99 in paise (Razorpay uses paise)
+const INTERNATIONAL_PRICE = 9; // $9 for international users
+const INTERNATIONAL_AMOUNT_CENTS = 900; // $9 in cents
 const ADMIN_PRICE = 1; // ₹1 for admin testing
 const ADMIN_AMOUNT_PAISE = 100; // ₹1 in paise
 
@@ -43,17 +50,11 @@ export async function POST(request: Request) {
     } else {
       // Get localized price based on currency
       if (currency === 'USD') {
-        price = 1.99; // $1.99
-        amount = 199; // $1.99 in paise (approx)
-      } else if (currency === 'EUR') {
-        price = 1.79; // €1.79
-        amount = 179; // €1.79 in paise (approx)
-      } else if (currency === 'GBP') {
-        price = 1.49; // £1.49
-        amount = 149; // £1.49 in paise (approx)
+        price = INTERNATIONAL_PRICE; // $9 for international users
+        amount = INTERNATIONAL_AMOUNT_CENTS; // $9 in cents
       } else {
-        price = FIXED_PRICE; // ₹99 for INR
-        amount = FIXED_AMOUNT_PAISE;
+        price = INDIA_PRICE; // ₹99 for Indian users (default)
+        amount = INDIA_AMOUNT_PAISE;
       }
     }
 
@@ -138,9 +139,9 @@ export async function POST(request: Request) {
           "Unlimited access", 
           "Full features"
         ] : [
-          "1,00,000 words credits",
-          "50+ templates", 
-          "Lifetime access",
+          "1,000,000 words credits",
+          "20+ templates", 
+          "Credits never expire",
           "Priority support",
           `Payment in ${currency}`
         ]

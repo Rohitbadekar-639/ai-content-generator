@@ -39,9 +39,15 @@ export const PAYMENT_CONFIG = {
     plans: {
       professional: {
         INR: 99, // ₹99 for Indian users
-        USD: 1.99, // ~$1.99 for international users
-        EUR: 1.79, // ~€1.79 for European users
-        GBP: 1.49, // ~£1.49 for UK users
+        USD: 9, // $9 for international users
+      },
+    },
+    
+    // Original pricing for strikethrough display
+    originalPricing: {
+      professional: {
+        INR: 399, // ₹399 original price
+        USD: 29, // $29 original price
       },
     },
     
@@ -51,7 +57,7 @@ export const PAYMENT_CONFIG = {
         id: 'card',
         name: 'Credit/Debit Card',
         icon: '💳',
-        available: ['INR', 'USD', 'EUR', 'GBP'],
+        available: ['INR', 'USD'],
       },
       {
         id: 'upi',
@@ -75,7 +81,7 @@ export const PAYMENT_CONFIG = {
         id: 'international',
         name: 'International Card',
         icon: '🌍',
-        available: ['USD', 'EUR', 'GBP'],
+        available: ['USD'],
       },
     ],
   },
@@ -91,8 +97,8 @@ export const PAYMENT_CONFIG = {
   
   // Success messages
   successMessages: {
-    payment: 'Payment successful! You now have lifetime premium access to all templates.',
-    activation: 'Subscription activated successfully! Enjoy your premium features.',
+    payment: 'Payment successful! You now have 1,000,000 credits to use all templates.',
+    activation: 'Premium credits added successfully! Enjoy your premium features.',
   },
   
   // Retry configuration
@@ -109,15 +115,13 @@ export const getCurrencyByLocation = async (): Promise<string> => {
   try {
     const response = await fetch('https://ipapi.co/json/');
     const data = await response.json();
-    const currency = data.currency || 'INR';
+    const countryCode = data.country_code || 'IN';
     
-    // Fallback to INR if currency not supported
-    return PAYMENT_CONFIG.razorpay.currencies[currency as keyof typeof PAYMENT_CONFIG.razorpay.currencies] 
-      ? currency 
-      : 'INR';
+    // Return INR for India, USD for rest of world
+    return countryCode === 'IN' ? 'INR' : 'USD';
   } catch (error) {
     console.error('Error detecting currency:', error);
-    return 'INR';
+    return 'USD'; // Default to USD if geolocation fails
   }
 };
 
@@ -146,4 +150,22 @@ export const getAvailablePaymentMethods = (currency: string) => {
   return PAYMENT_CONFIG.razorpay.methods.filter(method => 
     method.available.includes(currency)
   );
+};
+
+export const getPricingInfo = async () => {
+  const currency = await getCurrencyByLocation();
+  const price = PAYMENT_CONFIG.razorpay.plans.professional[currency as keyof typeof PAYMENT_CONFIG.razorpay.plans.professional];
+  const originalPrice = PAYMENT_CONFIG.razorpay.originalPricing.professional[currency as keyof typeof PAYMENT_CONFIG.razorpay.originalPricing.professional];
+  const symbol = PAYMENT_CONFIG.razorpay.currencies[currency as keyof typeof PAYMENT_CONFIG.razorpay.currencies]?.symbol || '$';
+  
+  return {
+    currency,
+    price,
+    originalPrice,
+    symbol,
+    amount: currency === 'INR' ? price * 100 : price * 100, // Convert to paise/cents
+    displayPrice: `${symbol}${price}`,
+    displayOriginalPrice: `${symbol}${originalPrice}`,
+    isIndia: currency === 'INR'
+  };
 };

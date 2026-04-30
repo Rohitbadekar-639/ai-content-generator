@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SideNav from "./_components/SideNav";
 import Header from "./_components/Header";
 import { TotalUsageContext } from "../(context)/TotalUsageContext";
 import { UserSubscriptionContext } from "../(context)/UserSubscriptionContext";
 import { UpdateCreditUsageContext } from "../(context)/UpdateCreditUsageContext";
+import { useUser } from "@clerk/nextjs";
 
 function layout({
   children,
@@ -14,6 +15,33 @@ function layout({
   const [totalUsage, setTotalUsage] = useState<Number>(0);
   const [userSubscription, setUserSubscription] = useState<any>(null);
   const [updateCreditUsage, setUpdateCreditUsage] = useState<any>();
+  const { user } = useUser();
+
+  // Fetch user subscription data on mount
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!user?.primaryEmailAddress?.emailAddress) return;
+      
+      try {
+        const response = await fetch('/api/check-subscription', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: user.primaryEmailAddress?.emailAddress || '',
+          }),
+        });
+        
+        const data = await response.json();
+        setUserSubscription(data.subscription);
+      } catch (error) {
+        console.error('Error fetching subscription:', error);
+      }
+    };
+
+    fetchSubscription();
+  }, [user]);
 
   return (
     <TotalUsageContext.Provider value={{ totalUsage, setTotalUsage }}>

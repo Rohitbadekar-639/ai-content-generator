@@ -80,11 +80,12 @@ function CreateNewContent(props: PROPS) {
   };
 
   // Check if user has access to this template (admin bypasses all restrictions)
-  const availableTemplates = getTemplatesForUser(userSubscription ? true : false);
+  const isPremiumUser = userSubscription?.active && userSubscription?.plan === "Professional";
+  const availableTemplates = getTemplatesForUser(isPremiumUser);
   const hasAccess = isAdmin || (selectedTemplate && availableTemplates.some(t => t.slug === selectedTemplate.slug));
 
   // Set maxWords based on subscription status (admin gets unlimited)
-  const maxWords = isAdmin ? 999999999 : (userSubscription ? 1000000 : 100000); // Admin unlimited, paid 10L, free 1L
+  const maxWords = isAdmin ? 999999999 : (isPremiumUser ? 1000000 : 10000); // Admin unlimited, paid 1M, free 10K
 
   const GenerateAIContent = async (formData: any) => {
     if (!selectedTemplate) {
@@ -92,10 +93,10 @@ function CreateNewContent(props: PROPS) {
     }
 
     // Check usage limits before generation (admin bypasses)
-    const maxWordsForGeneration = isAdmin ? 999999999 : (userSubscription ? 1000000 : 100000);
+    const maxWordsForGeneration = isAdmin ? 999999999 : (isPremiumUser ? 1000000 : 10000);
     if (!isAdmin && totalUsage >= maxWordsForGeneration) {
-      const planName = userSubscription ? "Professional" : "Free";
-      alert(`You've reached your ${planName} plan limit of ${maxWordsForGeneration.toLocaleString()} words. Please upgrade to continue generating content.`);
+      const planName = isPremiumUser ? "Professional" : "Free";
+      alert(`You've reached your ${planName} plan limit of ${maxWordsForGeneration.toString()} words. Please upgrade to continue generating content.`);
       return;
     }
 

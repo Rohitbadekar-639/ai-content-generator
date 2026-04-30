@@ -16,7 +16,7 @@ function UsageTrack() {
   const { userSubscription, setUserSubscription } = useContext(
     UserSubscriptionContext
   );
-  const [maxWords, setMaxWords] = useState<number>(100000); // Default to 1,00,000, will update based on subscription
+  const [maxWords, setMaxWords] = useState<number>(10000); // Default to 10,000, will update based on subscription
   const [isHydrated, setIsHydrated] = useState(false);
   const { updateCreditUsage, setUpdateCreditUsage } = useContext(
     UpdateCreditUsageContext
@@ -34,10 +34,10 @@ function UsageTrack() {
 
   // Update maxWords after subscription status is determined
   useEffect(() => {
-    if (userSubscription) {
-      setMaxWords(1000000); // 10,00,000 for paid plan
+    if (userSubscription?.active && userSubscription?.plan === "Professional") {
+      setMaxWords(1000000); // 1,000,000 for paid plan
     } else {
-      setMaxWords(100000); // 1,00,000 for free plan
+      setMaxWords(10000); // 10,000 for free plan
     }
   }, [userSubscription]);
 
@@ -71,8 +71,15 @@ function UsageTrack() {
       const subscription = result[0];
       const isActive = subscription.active && subscription.plan === "Professional";
       setUserSubscription(isActive);
+      
+      // Set maxWords based on actual credits from database
+      if (subscription.credits) {
+        setMaxWords(subscription.credits);
+      }
     } else {
       setUserSubscription(false);
+      // Set default free plan credits
+      setMaxWords(10000);
     }
   };
 
@@ -112,11 +119,11 @@ function UsageTrack() {
           ></div>
         </div>
         <h2 className="text-sm my-2">
-          {totalUsage.toLocaleString()}/{maxWords.toLocaleString()} words used
+          {isHydrated ? totalUsage.toLocaleString() : totalUsage.toString()}/{isHydrated ? maxWords.toLocaleString() : maxWords.toString()} words used
         </h2>
         {totalUsage >= maxWords * 0.8 && (
           <p className="text-xs text-yellow-200">
-            {totalUsage >= maxWords ? "Limit reached!" : `Only ${(maxWords - totalUsage).toLocaleString()} words left`}
+            {totalUsage >= maxWords ? "Limit reached!" : `Only ${isHydrated ? (maxWords - totalUsage).toLocaleString() : (maxWords - totalUsage).toString()} words left`}
           </p>
         )}
       </div>

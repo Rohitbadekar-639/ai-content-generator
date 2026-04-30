@@ -606,13 +606,16 @@ const templates: TEMPLATE[] = [
   },
 ];
 
-// Define which templates are free (first 5 templates for free users)
+// Define which templates are free (8 high-demand templates for free users)
 const freeTemplates = [
   "Article Rewriter",
   "Blog Content Writer", 
   "Blog Title Generator",
   "Blog Topic Ideas",
-  "Code Bug Detector"
+  "Code Bug Detector",
+  "Email Marketing Campaign",
+  "SEO Meta Description",
+  "Product Description Writer"
 ];
 
 // Filter templates for free vs premium users
@@ -621,7 +624,7 @@ export const getTemplatesForUser = (isPremium: boolean) => {
     // Premium users get all templates
     return templates.sort((a, b) => a.name.localeCompare(b.name));
   } else {
-    // Free users only get the first 5 templates
+    // Free users get 8 high-demand templates
     return templates
       .filter(template => freeTemplates.includes(template.name))
       .sort((a, b) => a.name.localeCompare(b.name));

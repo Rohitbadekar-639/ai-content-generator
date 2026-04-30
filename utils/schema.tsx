@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, boolean, integer } from "drizzle-orm/pg-core";
 
 export const AIOutput = pgTable("aiOutput", {
   id: serial("id").primaryKey(),
@@ -17,4 +17,5 @@ export const UserSubscription = pgTable("userSubscription", {
   paymentId: varchar("paymentId"),
   joinDate: varchar("joinDate"),
   plan: varchar("plan").default("Free"),
+  credits: integer("credits").default(10000), // Default 10,000 credits for free users
 });

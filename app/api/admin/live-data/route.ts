@@ -37,15 +37,33 @@ export async function GET(request: Request) {
 
     console.log('Total content found:', allContent.length);
 
-    // 3. Calculate real metrics
+    // 3. Calculate real-time metrics
+    const currentTime = new Date();
+    const startOfDay = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate());
+    const startOfMonth = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
+    const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
+    
     const totalUsers = allUsers.length;
-    const paidUsers = allUsers.filter(user => user.active && user.email !== 'rohitbadekar555@gmail.com').length;
-    const freeUsers = totalUsers - paidUsers;
+    const paidUsers = allUsers.filter(user => user.active && user.plan === "Professional" && user.email !== 'rohitbadekar555@gmail.com').length;
+    const freeUsers = totalUsers - paidUsers - 1; // Subtract admin
     const adminUsers = allUsers.filter(user => user.email === 'rohitbadekar555@gmail.com').length;
+    
+    // Real-time user activity
+    const newUsersToday = allUsers.filter(user => 
+      user.joinDate && new Date(user.joinDate) >= startOfDay
+    ).length;
+    const newUsersThisMonth = allUsers.filter(user => 
+      user.joinDate && new Date(user.joinDate) >= startOfMonth
+    ).length;
     
     // Calculate revenue (₹99 per paid user)
     const totalRevenue = paidUsers * 99;
-    const currentMonthRevenue = paidUsers * 99; // Simplified for now
+    const currentMonthRevenue = paidUsers * 99;
+    
+    // Content activity in last hour
+    const recentActivity = allContent.filter(content => 
+      content.createdAt && new Date(content.createdAt) >= oneHourAgo
+    ).length;
     
     // 4. Template usage statistics
     const templateUsage = allContent.reduce((acc, content) => {
@@ -154,7 +172,9 @@ export async function GET(request: Request) {
         totalUsers,
         paidUsers,
         freeUsers,
-        newUsers: totalUsers, // All users are "new" for now
+        newUsersToday,
+        newUsersThisMonth,
+        activeNow: recentActivity,
         totalRevenue,
         currentMonthRevenue,
         totalContent: allContent.length,

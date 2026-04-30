@@ -202,6 +202,15 @@ export default function AdminDashboardSimple() {
             </div>
             <div className="flex items-center space-x-4">
               <Button 
+                onClick={fetchAdminData}
+                disabled={loading}
+                variant="outline" 
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </Button>
+              <Button 
                 onClick={() => window.location.href = '/'} 
                 variant="outline" 
                 size="sm"
@@ -227,10 +236,6 @@ export default function AdminDashboardSimple() {
                 <option value="90d">Last 90 days</option>
                 <option value="1y">Last year</option>
               </select>
-              <Button onClick={fetchAdminData} variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
             </div>
           </div>
         </div>

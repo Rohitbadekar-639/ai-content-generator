@@ -110,7 +110,7 @@ function TemplateListSection({ userSearchInput }: any) {
       {/* Template Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8">
         {templateList.map((items: TEMPLATE, index: number) => (
-          <TemplateCard key={index} {...items} />
+          <TemplateCard key={index} {...items} isPremium={isPremium} isAdmin={isAdmin} />
         ))}
         
         {/* Show upgrade prompt for free users if they have fewer templates (not shown to admin) */}
