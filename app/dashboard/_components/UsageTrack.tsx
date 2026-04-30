@@ -35,7 +35,7 @@ function UsageTrack() {
   // Update maxWords after subscription status is determined
   useEffect(() => {
     if (userSubscription?.active && userSubscription?.plan === "Professional") {
-      setMaxWords(1000000); // 1,000,000 for paid plan
+      setMaxWords(100000); // 100,000 for paid plan
     } else {
       setMaxWords(10000); // 10,000 for free plan
     }
@@ -119,7 +119,7 @@ function UsageTrack() {
           ></div>
         </div>
         <h2 className="text-sm my-2">
-          {isHydrated ? totalUsage.toLocaleString() : totalUsage.toString()}/{isHydrated ? maxWords.toLocaleString() : maxWords.toString()} words used
+          {isHydrated ? totalUsage.toLocaleString() : totalUsage.toString()}/{isHydrated ? maxWords.toLocaleString() : maxWords.toString()} credits used
         </h2>
         {totalUsage >= maxWords * 0.8 && (
           <p className="text-xs text-yellow-200">

@@ -22,8 +22,8 @@ export default function SimplePayment({ onSuccess, onError, pricingInfo }: Simpl
   const price = isAdmin ? 1 : (pricingInfo?.price || 99);
   const amount = isAdmin ? 100 : (currency === 'INR' ? price * 100 : price * 100);
   const displayPrice = isAdmin ? '₹1' : (pricingInfo?.displayPrice || '₹99');
-  const wordCredits = isAdmin ? 10000 : 1000000; // 1M credits for premium
-  const formattedWordCredits = isAdmin ? "10000" : "1000000"; // Simple string to avoid hydration
+  const wordCredits = isAdmin ? 10000 : 100000; // 100k credits for premium
+  const formattedWordCredits = isAdmin ? "10000" : "1,00,000"; // Simple string to avoid hydration
   
   // Load Razorpay
   const loadRazorpay = (): Promise<any> => {
@@ -107,7 +107,7 @@ export default function SimplePayment({ onSuccess, onError, pricingInfo }: Simpl
                 },
                 body: JSON.stringify({
                   email: user.primaryEmailAddress?.emailAddress || '',
-                  plan: "Professional",
+                  plan: "Premium",
                   paymentId: response.razorpay_payment_id
                 }),
               });

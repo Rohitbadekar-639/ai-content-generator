@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"; // Corrected import
 import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
 import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
 import { useLoading } from "@/app/(context)/LoadingContext";
+import CreditsExhaustedModal from "@/components/ui/credits-exhausted-modal";
 
 interface PROPS {
   params: Promise<{ "template-slug": string }>; // params is now a Promise
@@ -29,6 +30,7 @@ function CreateNewContent(props: PROPS) {
 
   const [loading, setLocalLoading] = useState(false);
   const [aiOutput, setAiOutput] = useState<string>("");
+  const [showCreditsExhaustedModal, setShowCreditsExhaustedModal] = useState(false);
   const { user } = useUser();
   const router = useRouter();
   const { totalUsage, setTotalUsage } = useContext(TotalUsageContext);
@@ -93,10 +95,9 @@ function CreateNewContent(props: PROPS) {
     }
 
     // Check usage limits before generation (admin bypasses)
-    const maxWordsForGeneration = isAdmin ? 999999999 : (isPremiumUser ? 1000000 : 10000);
+    const maxWordsForGeneration = isAdmin ? 999999999 : (isPremiumUser ? 100000 : 10000);
     if (!isAdmin && totalUsage >= maxWordsForGeneration) {
-      const planName = isPremiumUser ? "Professional" : "Free";
-      alert(`You've reached your ${planName} plan limit of ${maxWordsForGeneration.toString()} words. Please upgrade to continue generating content.`);
+      setShowCreditsExhaustedModal(true);
       return;
     }
 
@@ -232,6 +233,14 @@ REQUIREMENTS: Generate comprehensive, publication-ready content that exceeds exp
           <OutputSection aiOutput={aiOutput} />
         </div>
       </div>
+      
+      {/* Credits Exhausted Modal */}
+      <CreditsExhaustedModal
+        isOpen={showCreditsExhaustedModal}
+        onClose={() => setShowCreditsExhaustedModal(false)}
+        currentUsage={totalUsage}
+        maxCredits={maxWords}
+      />
     </div>
   );
 }

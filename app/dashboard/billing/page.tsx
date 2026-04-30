@@ -52,7 +52,7 @@ function Billing() {
   const adminPrice = 1;
   const userPrice = pricingInfo?.price || 99;
   const displayPrice = isAdmin ? adminPrice : userPrice;
-  const wordCredits = isAdmin ? 10000 : 1000000;
+  const wordCredits = isAdmin ? 10000 : 100000;
 
   // Admin reset credits function
   const resetCredits = async () => {
@@ -88,7 +88,7 @@ function Billing() {
   };
   
   // Use simple, deterministic formatting to avoid hydration mismatch
-  const formattedWordCredits = "1000000"; // Simple number without commas to ensure server/client consistency
+  const formattedWordCredits = "1,00,000"; // Simple number without commas to ensure server/client consistency
 
   // Refresh subscription status
   useEffect(() => {
@@ -169,6 +169,10 @@ function Billing() {
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">10,000 credits</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <span className="text-gray-700">limited templates only</span>
               </li>
               <li className="flex items-center gap-2">
@@ -220,7 +224,7 @@ function Billing() {
                 </div>
               )}
               <p className="text-blue-100">
-                {formattedWordCredits} words credits
+                {formattedWordCredits} credits
               </p>
               {!isAdmin && (
                 <p className="text-sm text-blue-200 mt-2">
@@ -232,7 +236,7 @@ function Billing() {
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-white">{formattedWordCredits} words credits</span>
+                <span className="text-white">{formattedWordCredits} credits</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-yellow-400 flex-shrink-0" />
@@ -257,7 +261,7 @@ function Billing() {
                 <p className="text-sm text-gray-300 mb-4">
                   {isAdmin 
                     ? 'Test payment for admin (₹1)' 
-                    : `One-time payment for 1,000,000 credits (${pricingInfo?.displayPrice || '₹99'})`
+                    : `One-time payment for 1,00,000 credits (${pricingInfo?.displayPrice || '₹99'})`
                   }
                 </p>
                 <SimplePayment

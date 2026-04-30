@@ -46,7 +46,7 @@ export default function LandingPage() {
       name: "Premium",
       price: "₹99",
       words: "100,000",
-      features: ["100,000 words credits", "All 50+ templates", "Full features", "Lifetime access", "One-time payment"],
+      features: ["100,000 words credits", "All 20+ templates", "Full features", "Lifetime access", "One-time payment"],
       popular: true,
       amount: 99,
     },

@@ -112,7 +112,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
         amount: orderData.data.amount, // FIXED: ₹9900 (99 rupees)
         currency: orderData.data.currency,
         name: "RapidContent",
-        description: `Professional Plan - ₹${orderData.data.display_amount}/month`,
+        description: `Premium Plan - ₹${displayPrice} once`, // FIXED: Show Premium Plan
         order_id: orderData.data.order_id,
         prefill: {
           name: user.fullName || user.firstName || "User",
@@ -223,7 +223,7 @@ export default function SecurePayment({ onSuccess, onError }: SecurePaymentProps
         },
         body: JSON.stringify({
           email: user?.primaryEmailAddress?.emailAddress, // Add user email
-          plan: "Professional",
+          plan: "Premium",
           amount: 99, // FIXED: ₹99
           paymentId: Date.now().toString(),
         }),

@@ -11,7 +11,7 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "RapidContent - AI Content Generator SAAS",
-  description: "Generate high-quality content with AI. Professional AI content generator with templates for blogs, social media, marketing, and more. Start with 1,00,000 free words.",
+  description: "Generate high-quality content with AI. Professional AI content generator with templates for blogs, social media, marketing, and more. Start with 10,000 free words.",
 };
 
 export default function RootLayout({

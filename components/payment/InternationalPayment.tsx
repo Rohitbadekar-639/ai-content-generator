@@ -42,8 +42,8 @@ export default function InternationalPayment({ onSuccess, onError, pricingInfo }
   
   // Get localized pricing
   const localizedPrice = isAdmin ? 1 : localPrice;
-  const wordCredits = isAdmin ? 10000 : 1000000; // 1M credits for premium
-  const formattedWordCredits = isAdmin ? "10000" : "1000000"; // Simple string to avoid hydration
+  const wordCredits = isAdmin ? 10000 : 100000; // 100k credits for premium
+  const formattedWordCredits = isAdmin ? "10000" : "100000"; // Simple string to avoid hydration
   
   // Available payment methods for selected currency
   const availableMethods = getAvailablePaymentMethods(selectedCurrency);
@@ -264,7 +264,7 @@ export default function InternationalPayment({ onSuccess, onError, pricingInfo }
         },
         body: JSON.stringify({
           email: user?.primaryEmailAddress?.emailAddress,
-          plan: "Professional",
+          plan: "Premium",
           amount: localizedPrice,
           currency: selectedCurrency,
           paymentId: Date.now().toString(),
